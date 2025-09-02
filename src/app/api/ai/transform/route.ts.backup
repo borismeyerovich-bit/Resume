@@ -1,0 +1,147 @@
+import { NextRequest, NextResponse } from 'next/server';
+import OpenAI from 'openai';
+import { AmericanizedResume, Resume } from '@/entities/Resume';
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+// Helper to clean AI response (remove markdown, etc.)
+function cleanAIResponse(text: string): string {
+  // Remove markdown code blocks (```json ... ```)
+  const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
+  if (jsonMatch && jsonMatch[1]) {
+    return jsonMatch[1];
+  }
+  // If no markdown block, try to clean up common AI conversational text
+  const cleanedText = text
+    .replace(/^(Here's the JSON|```json|```|```json\n|```\n)/gm, '') // Remove common prefixes/suffixes
+    .trim();
+  return cleanedText;
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const { resume } = await request.json();
+
+    if (!resume) {
+      return NextResponse.json({ error: 'Resume data is required for transformation' }, { status: 400 });
+    }
+
+    console.log('🇺🇸 Transforming resume to American style using OpenAI GPT...');
+    console.log('📄 Input resume:', resume);
+
+    const chatCompletion = await openai.chat.completions.create({
+      model: 'gpt-4-turbo', // Using GPT-4 Turbo for better instruction following and consistency
+      messages: [
+        {
+          role: 'system',
+          content: `You are an expert resume transformer. Your task is to convert the provided resume data (which might contain Hebrew) into a professional American-style resume in English.
+
+CRITICAL INSTRUCTIONS:
+1. Translate ALL Hebrew text to English
+2. Ensure all bullet points are fully included and rephrased to be action-oriented, concise, and include quantifiable achievements where possible
+3. Use American business English and standard resume formatting conventions
+4. Keep the resume to ONE PAGE - prioritize most recent and relevant experience, limit bullet points to 2-3 per job, use very concise language
+5. For company names, use proper English names (e.g., "Israir" for ישראייר)
+6. For dates, convert Hebrew dates to proper English format. IMPORTANT: Put START DATE FIRST, then END DATE:
+   - "8106 – היום" should become "06/2018 – Present" (START DATE FIRST)
+   - "8105 – 8106" should become "05/2015 – 06/2016"
+   - "8103 – 8105" should become "03/2013 – 05/2015"
+   - "8008 – 8103" should become "08/2008 – 03/2013"
+   - "8000 – 8008" should become "00/2000 – 08/2008"
+7. The output MUST be a valid JSON object, and nothing else. Do not include any conversational text or markdown outside the JSON.
+8. Use EXTREMELY COMPACT formatting - minimize text, use abbreviations where appropriate, prioritize key achievements only.
+9. For work experience, limit to 2-3 most relevant positions if needed to fit one page.
+10. Use short, punchy bullet points with quantifiable results where possible.
+
+The JSON schema should be:
+interface PersonalInfo {
+  name: string; // Use the actual person's name (e.g., "Asaf Magen")
+  email: string;
+  phone: string;
+  location: string;
+  linkedin?: string;
+  website?: string;
+}
+
+interface WorkExperience {
+  id: string;
+  company: string;
+  position: string;
+  location: string;
+  startDate: string; // MM/YYYY format
+  endDate: string; // MM/YYYY or "Present"
+  current: boolean;
+  bullets: string[]; // Action-oriented, quantifiable achievements (max 3-4 per job)
+}
+
+interface Education {
+  id: string;
+  institution: string;
+  degree: string;
+  field?: string;
+  location: string;
+  graduationDate: string; // YYYY format
+  gpa?: string;
+}
+
+interface OtherSection {
+  id: string;
+  title: string;
+  items: string[]; // e.g., Skills, Awards, Certifications
+}
+
+interface AmericanizedResume {
+  personal_info: PersonalInfo;
+  summary: string; // Professional summary (2-3 lines max)
+  work_experience: WorkExperience[];
+  education: Education[];
+  skills: string[]; // List of skills
+  other: OtherSection[];
+}
+
+Generate a concise professional summary (2-3 lines maximum).
+Extract skills into a dedicated 'skills' array.
+If a field is not present, use an empty string or empty array.
+`
+        },
+        {
+          role: 'user',
+          content: JSON.stringify(resume),
+        },
+      ],
+      response_format: { type: 'json_object' },
+      temperature: 0.1,
+      max_tokens: 4000, // Increased token limit
+    });
+
+    const responseText = chatCompletion.choices[0].message?.content || '';
+    console.log('📥 Received transformation response from OpenAI');
+    console.log('📄 AI response preview:', responseText.substring(0, 200), '...');
+
+    let americanizedResume: AmericanizedResume;
+    try {
+      const cleanedResponse = cleanAIResponse(responseText);
+      americanizedResume = JSON.parse(cleanedResponse);
+      console.log('✅ Successfully transformed resume data');
+    } catch (parseError) {
+      console.error('❌ Failed to parse JSON response:', responseText);
+      throw new Error('Invalid JSON response from AI');
+    }
+
+    // Ensure all required arrays exist
+    americanizedResume.work_experience = americanizedResume.work_experience || [];
+    americanizedResume.education = americanizedResume.education || [];
+    americanizedResume.skills = americanizedResume.skills || [];
+    americanizedResume.other = americanizedResume.other || [];
+
+    return NextResponse.json({ americanizedResume });
+  } catch (error: any) {
+    console.error('❌ Error transforming resume:', error);
+    return NextResponse.json(
+      { error: `Failed to transform resume: ${error.message}` },
+      { status: 500 }
+    );
+  }
+}
