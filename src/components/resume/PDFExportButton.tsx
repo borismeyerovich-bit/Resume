@@ -21,6 +21,9 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
   const generatePDF = async () => {
     setIsExporting(true);
     
+    // Log the font config being used
+    console.log('🖨️ Generating PDF with font config:', fontConfig);
+    
     try {
       // Create a new window for PDF generation
       const printWindow = window.open('', '_blank');
@@ -35,124 +38,181 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
         <head>
           <title>Resume - ${resume.personal_info.name}</title>
           <style>
+            @page {
+              size: A4;
+              margin: 10mm 15mm;
+            }
+            
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            
+            html {
+              height: 297mm;
+              width: 210mm;
+              margin: 0;
+              padding: 0;
+            }
+            
             body {
               font-family: 'Times New Roman', serif;
-              line-height: ${fontConfig.lineHeight}px;
+              line-height: ${fontConfig.lineHeight}px !important;
               margin: 0;
-              padding: 10px;
-              color: #333;
-              max-width: 800px;
-              margin: 0 auto;
-              font-size: ${fontConfig.bodyFontSize}px;
+              padding: 0;
+              color: #000;
+              width: 210mm;
+              height: 297mm;
+              font-size: ${fontConfig.bodyFontSize}px !important;
+              overflow: hidden;
+              page-break-after: avoid;
+              page-break-before: avoid;
+            }
+            
+            .resume-container {
+              padding: 8px 12px;
+              height: 297mm;
+              width: 210mm;
+              display: flex;
+              flex-direction: column;
+              overflow: hidden;
+              position: relative;
+            }
+            
+            .content-area {
+              flex: 1;
+              overflow: hidden;
+              max-height: calc(297mm - 30px);
             }
             .header {
               text-align: center;
               margin-bottom: ${fontConfig.sectionSpacing}px;
               border-bottom: 1px solid #333;
-              padding-bottom: 10px;
+              padding-bottom: ${fontConfig.sectionSpacing / 2}px;
             }
             .name {
-              font-size: ${fontConfig.headerFontSize}px;
+              font-size: ${fontConfig.headerFontSize + 6}px !important;
               font-weight: bold;
-              margin-bottom: 5px;
+              margin-bottom: 4px;
+              letter-spacing: 0.5px;
             }
             .contact {
-              font-size: ${fontConfig.bodyFontSize}px;
-              color: #666;
+              font-size: ${fontConfig.bodyFontSize - 0.5}px !important;
+              color: #444;
             }
             .section {
               margin-bottom: ${fontConfig.sectionSpacing}px;
             }
             .section-title {
-              font-size: ${fontConfig.bodyFontSize}px;
+              font-size: ${fontConfig.bodyFontSize + 0.5}px !important;
               font-weight: bold;
-              margin-bottom: 8px;
-              border-bottom: 1px solid #ccc;
-              padding-bottom: 2px;
+              margin-bottom: ${fontConfig.sectionSpacing / 2}px;
+              border-bottom: 1px solid #ddd;
+              padding-bottom: 1px;
+              text-transform: uppercase;
             }
             .work-item, .education-item {
-              margin-bottom: ${fontConfig.sectionSpacing}px;
+              margin-bottom: ${fontConfig.sectionSpacing * 0.7}px;
             }
             .job-title {
               font-weight: bold;
-              font-size: ${fontConfig.bodyFontSize}px;
+              font-size: ${fontConfig.bodyFontSize}px !important;
+              margin-bottom: 1px;
             }
             .company {
               font-weight: bold;
-              color: #333;
-              font-size: ${fontConfig.bodyFontSize}px;
+              color: #222;
+              font-size: ${fontConfig.bodyFontSize}px !important;
+              display: inline;
             }
             .dates {
               font-style: italic;
-              color: #666;
+              color: #555;
               float: right;
-              font-size: ${fontConfig.bodyFontSize}px;
+              font-size: ${fontConfig.bodyFontSize - 0.5}px !important;
             }
             .location {
-              color: #666;
-              font-size: ${fontConfig.bodyFontSize}px;
+              color: #555;
+              font-size: ${fontConfig.bodyFontSize - 0.5}px !important;
+              display: inline;
+              margin-left: 5px;
             }
             .bullets {
-              margin-top: 5px;
+              margin-top: 2px;
               padding-left: 0;
               list-style: none;
             }
             .bullets li {
               margin-bottom: ${fontConfig.bulletSpacing}px;
-              font-size: ${fontConfig.bulletFontSize}px;
-              line-height: ${fontConfig.lineHeight}px;
+              font-size: ${fontConfig.bulletFontSize}px !important;
+              line-height: ${fontConfig.lineHeight}px !important;
+              padding-left: 10px;
+              position: relative;
             }
             .bullets li:before {
-              content: "• ";
-              margin-right: 5px;
+              content: "•";
+              position: absolute;
+              left: 0;
             }
             .summary {
               font-style: italic;
               margin-bottom: ${fontConfig.sectionSpacing}px;
-              font-size: ${fontConfig.bodyFontSize}px;
+              font-size: ${fontConfig.bodyFontSize - 0.5}px !important;
+              line-height: ${fontConfig.lineHeight}px !important;
             }
             .skills {
-              display: flex;
-              flex-wrap: wrap;
-              gap: 5px;
-            }
-            .skill-tag {
-              background: #f0f0f0;
-              padding: 2px 6px;
-              border-radius: 3px;
-              font-size: ${fontConfig.bulletFontSize}px;
+              font-size: ${fontConfig.bulletFontSize}px !important;
+              line-height: ${fontConfig.lineHeight}px !important;
             }
             .watermark {
-              position: fixed;
-              bottom: 10px;
+              position: absolute;
+              bottom: 5px;
               right: 10px;
               color: #ccc;
-              font-size: 10px;
-              opacity: 0.7;
+              font-size: 8px;
+              opacity: 0.6;
             }
             @media print {
+              @page {
+                size: A4;
+                margin: 10mm;
+              }
               body { 
                 margin: 0; 
-                padding: 5px;
+                padding: 0;
+                width: 100%;
+                height: 100%;
               }
-              .watermark { position: fixed; }
+              .resume-container {
+                padding: 0;
+              }
+              .watermark { 
+                position: fixed;
+                bottom: 10mm;
+                right: 15mm;
+              }
               .section {
-                margin-bottom: ${fontConfig.sectionSpacing}px;
+                page-break-inside: avoid;
               }
               .work-item, .education-item {
-                margin-bottom: ${fontConfig.sectionSpacing}px;
+                page-break-inside: avoid;
               }
             }
           </style>
         </head>
         <body>
-          <div class="header">
-            <div class="name">${resume.personal_info.name}</div>
-            <div class="contact">
-              ${resume.personal_info.email} | ${resume.personal_info.phone} | ${resume.personal_info.location}
-              ${resume.personal_info.linkedin ? `<br>LinkedIn: ${resume.personal_info.linkedin}` : ''}
+          <div class="resume-container">
+            <div class="header">
+              <div class="name">${resume.personal_info.name}</div>
+              <div class="contact">
+                ${resume.personal_info.email} | ${resume.personal_info.phone} | ${resume.personal_info.location}
+                ${resume.personal_info.linkedin ? ` | ${resume.personal_info.linkedin}` : ''}
+              </div>
+              <!-- Debug: Font ${fontConfig.bodyFontSize}px -->
             </div>
-          </div>
+            
+            <div class="content-area">
 
           ${resume.summary ? `
             <div class="section">
@@ -165,12 +225,14 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
             <div class="section-title">Work Experience</div>
             ${resume.work_experience.map(work => `
               <div class="work-item">
-                <div class="job-title">
-                  ${work.position}
+                <div>
                   <span class="dates">${formatDate(work.startDate)} - ${work.current ? 'Present' : formatDate(work.endDate)}</span>
+                  <div class="job-title">${work.position}</div>
                 </div>
-                <div class="company">${work.company}</div>
-                <div class="location">${work.location}</div>
+                <div>
+                  <span class="company">${work.company}</span>
+                  <span class="location">${work.location}</span>
+                </div>
                 <ul class="bullets">
                   ${work.bullets.map(bullet => `<li>${bullet}</li>`).join('')}
                 </ul>
@@ -182,23 +244,23 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
             <div class="section-title">Education</div>
             ${resume.education.map(edu => `
               <div class="education-item">
-                <div class="job-title">
-                  ${edu.degree} in ${edu.field}
+                <div>
                   <span class="dates">${formatDate(edu.graduationDate)}</span>
+                  <div class="job-title">${edu.degree}${edu.field ? ` in ${edu.field}` : ''}</div>
                 </div>
-                <div class="company">${edu.institution}</div>
-                <div class="location">${edu.location}</div>
+                <div>
+                  <span class="company">${edu.institution}</span>
+                  <span class="location">${edu.location}</span>
+                </div>
                 ${edu.gpa ? `<div>GPA: ${edu.gpa}</div>` : ''}
               </div>
             `).join('')}
           </div>
 
-          ${resume.skills ? `
+          ${resume.skills && resume.skills.length > 0 ? `
             <div class="section">
               <div class="section-title">Skills</div>
-              <div class="skills">
-                ${resume.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
-              </div>
+              <div class="skills">${resume.skills.join(' • ')}</div>
             </div>
           ` : ''}
 
@@ -211,7 +273,10 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
             </div>
           `).join('')}
 
-          <div class="watermark">Created by ResumeBuild</div>
+            </div>
+            
+            <div class="watermark">Created by ResumeBuild | Font: ${fontConfig.bodyFontSize}px</div>
+          </div>
         </body>
         </html>
       `;

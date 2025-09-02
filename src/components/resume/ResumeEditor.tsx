@@ -1,29 +1,45 @@
 "use client";
 
-import { useState, useMemo } from 'react';
-import { AmericanizedResume } from '../../entities/Resume';
-import SectionEditor from './SectionEditor';
-import PDFExportButton from './PDFExportButton';
-import { getCompactFontSizing, FontSizingConfig } from '../../utils/fontSizing';
+import { useState, useMemo } from "react";
+import { AmericanizedResume } from "../../entities/Resume";
+import SectionEditor from "./SectionEditor";
+import PDFExportButton from "./PDFExportButton";
+import { getCompactFontSizing, FontSizingConfig } from "../../utils/fontSizing";
 
 interface ResumeEditorProps {
   resume: AmericanizedResume;
   onResumeUpdate: (resume: AmericanizedResume) => void;
 }
 
-export default function ResumeEditor({ resume, onResumeUpdate }: ResumeEditorProps) {
+export default function ResumeEditor({
+  resume,
+  onResumeUpdate,
+}: ResumeEditorProps) {
   const [sectionOrder, setSectionOrder] = useState<string[]>([
-    'personal_info',
-    'summary',
-    'education',
-    'work_experience',
-    'skills',
-    'other'
+    "personal_info",
+    "summary",
+    "education",
+    "work_experience",
+    "skills",
+    "other",
   ]);
 
   // Calculate optimal font sizing for PDF export (not for editor display)
   const pdfFontConfig: FontSizingConfig = useMemo(() => {
-    return getCompactFontSizing(resume);
+    const config = getCompactFontSizing(resume);
+    console.log("📄 PDF Font Config:", config);
+    console.log("📊 Resume stats:", {
+      workExperience: resume.work_experience?.length || 0,
+      totalBullets:
+        resume.work_experience?.reduce(
+          (acc, exp) => acc + (exp.bullets?.length || 0),
+          0
+        ) || 0,
+      education: resume.education?.length || 0,
+      skills: resume.skills?.length || 0,
+      otherSections: resume.other?.length || 0,
+    });
+    return config;
   }, [resume]);
 
   // Editor display font config (comfortable, readable size)
@@ -38,8 +54,15 @@ export default function ResumeEditor({ resume, onResumeUpdate }: ResumeEditorPro
 
   // Ensure all required arrays exist with default empty arrays
   const safeResume = {
-    personal_info: resume?.personal_info || { name: '', email: '', phone: '', location: '', linkedin: '', website: '' },
-    professional_summary: resume?.summary || '',
+    personal_info: resume?.personal_info || {
+      name: "",
+      email: "",
+      phone: "",
+      location: "",
+      linkedin: "",
+      website: "",
+    },
+    professional_summary: resume?.summary || "",
     work_experience: resume?.work_experience || [],
     education: resume?.education || [],
     technical_skills: resume?.skills || [],
@@ -49,18 +72,22 @@ export default function ResumeEditor({ resume, onResumeUpdate }: ResumeEditorPro
   const handleSectionUpdate = (sectionType: string, data: any) => {
     const updatedResume = {
       ...safeResume,
-      [sectionType]: data
+      [sectionType]: data,
     };
     onResumeUpdate(updatedResume);
   };
 
   const handleSectionDelete = (sectionType: string, index: number) => {
     const updatedResume = { ...safeResume };
-    if (sectionType === 'work_experience') {
-      updatedResume.work_experience = updatedResume.work_experience.filter((_, i) => i !== index);
-    } else if (sectionType === 'education') {
-      updatedResume.education = updatedResume.education.filter((_, i) => i !== index);
-    } else if (sectionType === 'other') {
+    if (sectionType === "work_experience") {
+      updatedResume.work_experience = updatedResume.work_experience.filter(
+        (_, i) => i !== index
+      );
+    } else if (sectionType === "education") {
+      updatedResume.education = updatedResume.education.filter(
+        (_, i) => i !== index
+      );
+    } else if (sectionType === "other") {
       updatedResume.other = updatedResume.other.filter((_, i) => i !== index);
     }
     onResumeUpdate(updatedResume);
@@ -68,45 +95,52 @@ export default function ResumeEditor({ resume, onResumeUpdate }: ResumeEditorPro
 
   const toggleSectionOrder = () => {
     const newOrder = [...sectionOrder];
-    const educationIndex = newOrder.indexOf('education');
-    const experienceIndex = newOrder.indexOf('work_experience');
-    
+    const educationIndex = newOrder.indexOf("education");
+    const experienceIndex = newOrder.indexOf("work_experience");
+
     if (educationIndex !== -1 && experienceIndex !== -1) {
-      [newOrder[educationIndex], newOrder[experienceIndex]] = [newOrder[experienceIndex], newOrder[educationIndex]];
+      [newOrder[educationIndex], newOrder[experienceIndex]] = [
+        newOrder[experienceIndex],
+        newOrder[educationIndex],
+      ];
       setSectionOrder(newOrder);
     }
   };
 
   const renderSection = (sectionType: string) => {
     switch (sectionType) {
-      case 'summary':
+      case "summary":
         return (
           <div key="summary" className="relative">
             <SectionEditor
               type="summary"
               data={safeResume.professional_summary}
-              onUpdate={(data) => handleSectionUpdate('professional_summary', data)}
+              onUpdate={(data) =>
+                handleSectionUpdate("professional_summary", data)
+              }
               fontConfig={editorFontConfig}
             />
           </div>
         );
-      case 'work_experience':
-        return safeResume.work_experience.map((experience: any, index: number) => (
-          <div key={`work-${index}`} className="relative">
-            <SectionEditor
-              type="work_experience"
-              data={experience}
-              onUpdate={(data) => {
-                const updatedExperience = [...safeResume.work_experience];
-                updatedExperience[index] = data;
-                handleSectionUpdate('work_experience', updatedExperience);
-              }}
-              onDelete={() => handleSectionDelete('work_experience', index)}
-              fontConfig={editorFontConfig}
-            />
-          </div>
-        ));
-      case 'education':
+      case "work_experience":
+        return safeResume.work_experience.map(
+          (experience: any, index: number) => (
+            <div key={`work-${index}`} className="relative">
+              <SectionEditor
+                type="work_experience"
+                data={experience}
+                onUpdate={(data) => {
+                  const updatedExperience = [...safeResume.work_experience];
+                  updatedExperience[index] = data;
+                  handleSectionUpdate("work_experience", updatedExperience);
+                }}
+                onDelete={() => handleSectionDelete("work_experience", index)}
+                fontConfig={editorFontConfig}
+              />
+            </div>
+          )
+        );
+      case "education":
         return safeResume.education.map((edu: any, index: number) => (
           <div key={`edu-${index}`} className="relative">
             <SectionEditor
@@ -115,25 +149,25 @@ export default function ResumeEditor({ resume, onResumeUpdate }: ResumeEditorPro
               onUpdate={(data) => {
                 const updatedEducation = [...safeResume.education];
                 updatedEducation[index] = data;
-                handleSectionUpdate('education', updatedEducation);
+                handleSectionUpdate("education", updatedEducation);
               }}
-              onDelete={() => handleSectionDelete('education', index)}
+              onDelete={() => handleSectionDelete("education", index)}
               fontConfig={editorFontConfig}
             />
           </div>
         ));
-      case 'skills':
+      case "skills":
         return (
           <div key="skills" className="relative">
             <SectionEditor
               type="skills"
               data={safeResume.technical_skills}
-              onUpdate={(data) => handleSectionUpdate('technical_skills', data)}
+              onUpdate={(data) => handleSectionUpdate("technical_skills", data)}
               fontConfig={editorFontConfig}
             />
           </div>
         );
-      case 'other':
+      case "other":
         return safeResume.other.map((other: any, index: number) => (
           <div key={`other-${index}`} className="relative">
             <SectionEditor
@@ -142,9 +176,9 @@ export default function ResumeEditor({ resume, onResumeUpdate }: ResumeEditorPro
               onUpdate={(data) => {
                 const updatedOther = [...safeResume.other];
                 updatedOther[index] = data;
-                handleSectionUpdate('other', updatedOther);
+                handleSectionUpdate("other", updatedOther);
               }}
-              onDelete={() => handleSectionDelete('other', index)}
+              onDelete={() => handleSectionDelete("other", index)}
               fontConfig={editorFontConfig}
             />
           </div>
@@ -164,9 +198,9 @@ export default function ResumeEditor({ resume, onResumeUpdate }: ResumeEditorPro
             <button
               onClick={toggleSectionOrder}
               className={`px-4 py-2 rounded-md text-sm font-medium ${
-                sectionOrder[2] === 'education'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                sectionOrder[2] === "education"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
             >
               Education First
@@ -174,22 +208,15 @@ export default function ResumeEditor({ resume, onResumeUpdate }: ResumeEditorPro
             <button
               onClick={toggleSectionOrder}
               className={`px-4 py-2 rounded-md text-sm font-medium ${
-                sectionOrder[2] === 'work_experience'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                sectionOrder[2] === "work_experience"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
             >
               Experience First
             </button>
             <PDFExportButton resume={resume} fontConfig={pdfFontConfig} />
           </div>
-        </div>
-
-        {/* Font size indicator for PDF export */}
-        <div className="mb-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-700">
-          📏 PDF Export Auto-sizing: Header {pdfFontConfig.headerFontSize}px, Body {pdfFontConfig.bodyFontSize}px, Bullets {pdfFontConfig.bulletFontSize}px
-          <br />
-          <span className="text-xs text-blue-600">Editor display uses comfortable 14px font size for easy editing</span>
         </div>
 
         {/* Resume content - comfortable size for editing */}
@@ -199,13 +226,15 @@ export default function ResumeEditor({ resume, onResumeUpdate }: ResumeEditorPro
             <SectionEditor
               type="personal_info"
               data={safeResume.personal_info}
-              onUpdate={(data) => handleSectionUpdate('personal_info', data)}
+              onUpdate={(data) => handleSectionUpdate("personal_info", data)}
               fontConfig={editorFontConfig}
             />
           </div>
 
           {/* Render sections in order */}
-          {sectionOrder.slice(1).map(sectionType => renderSection(sectionType))}
+          {sectionOrder
+            .slice(1)
+            .map((sectionType) => renderSection(sectionType))}
         </div>
       </div>
     </div>
