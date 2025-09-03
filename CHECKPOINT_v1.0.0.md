@@ -22,6 +22,8 @@
 - **Institution Translation**: "אוניברסיטה העברית" → "The Hebrew University"
 - **Field Translation**: "כלכלה ומנהל עסקים" → "Economics and Business Administration"
 - **Date Translation**: "8106 – היום" → "06/2018 – Present"
+- **Company names**: Add English descriptions for local companies
+- **Email Preservation**: "asafmagen2@gmail.com" stays "asafmagen2@gmail.com" (no RTL corruption)
 
 ### ✅ **One-Page Resume Constraint**
 - **Font Sizing Algorithm**: Dynamic calculation for optimal fit
@@ -95,6 +97,7 @@
 - Provided concrete Hebrew→English examples
 - Updated JSON schema with "MUST be in English" requirements
 - Optimized model settings for translation tasks
+- **Fixed email corruption during RTL language processing**
 
 ### **2. One-Page Constraint**
 - Implemented dynamic font sizing algorithm
