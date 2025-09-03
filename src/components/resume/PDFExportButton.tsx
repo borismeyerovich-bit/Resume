@@ -165,6 +165,17 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
               font-size: ${fontConfig.bulletFontSize}px !important;
               line-height: ${fontConfig.lineHeight}px !important;
             }
+            
+            .subsection {
+              margin-bottom: ${fontConfig.sectionSpacing / 2}px;
+            }
+            
+            .subsection-title {
+              font-weight: bold;
+              font-size: ${fontConfig.bodyFontSize}px !important;
+              margin-bottom: 4px;
+              color: #333;
+            }
             .watermark {
               position: absolute;
               bottom: 5px;
@@ -257,21 +268,27 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
             `).join('')}
           </div>
 
-          ${resume.skills && resume.skills.length > 0 ? `
+          ${(resume.skills && resume.skills.length > 0) || (resume.other && resume.other.length > 0) ? `
             <div class="section">
-              <div class="section-title">Skills</div>
-              <div class="skills">${resume.skills.join(' • ')}</div>
+              <div class="section-title">Additional Information</div>
+              
+              ${resume.skills && resume.skills.length > 0 ? `
+                <div class="subsection">
+                  <div class="subsection-title">Skills</div>
+                  <div class="skills">${resume.skills.join(' • ')}</div>
+                </div>
+              ` : ''}
+              
+              ${resume.other.map(other => `
+                <div class="subsection">
+                  <div class="subsection-title">${other.title}</div>
+                  <ul class="bullets">
+                    ${other.items.map(item => `<li>${item}</li>`).join('')}
+                  </ul>
+                </div>
+              `).join('')}
             </div>
           ` : ''}
-
-          ${resume.other.map(other => `
-            <div class="section">
-              <div class="section-title">${other.title}</div>
-              <ul class="bullets">
-                ${other.items.map(item => `<li>${item}</li>`).join('')}
-              </ul>
-            </div>
-          `).join('')}
 
             </div>
             
