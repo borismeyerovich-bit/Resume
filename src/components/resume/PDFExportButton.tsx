@@ -86,6 +86,15 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
               }
             }
             
+            /* Completely prevent any extra titles or headers */
+            .resume-container::before,
+            .resume-container::after,
+            .header::before,
+            .header::after {
+              display: none !important;
+              content: none !important;
+            }
+            
             .resume-container {
               padding: 8px 12px;
               height: 297mm;
@@ -101,16 +110,49 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
               overflow: hidden;
               max-height: calc(297mm - 30px);
             }
+            
+            /* Ensure only the intended header content shows */
             .header {
               text-align: center;
               margin-bottom: ${fontConfig.sectionSpacing}px;
               border-bottom: 1px solid #333;
               padding-bottom: ${fontConfig.sectionSpacing / 2}px;
+              position: relative;
+            }
+            
+            /* Remove any pseudo-elements that might add content */
+            .header::before,
+            .header::after {
+              display: none !important;
+              content: none !important;
             }
             
             /* Ensure header contains only the intended content */
             .header > *:not(.name):not(.contact) {
               display: none !important;
+            }
+            
+            /* Hide any text that might contain "resume:" or similar */
+            .header:contains("resume:"),
+            .header:contains("Resume:"),
+            .header:contains("RESUME:") {
+              display: none !important;
+            }
+            
+            /* Additional safety: hide any element that might contain unwanted text */
+            .header *:not(.name):not(.contact) {
+              display: none !important;
+            }
+            
+            /* Hide any text nodes that might contain unwanted content */
+            .header {
+              font-size: ${fontConfig.bodyFontSize}px !important;
+            }
+            
+            /* Ensure no extra spacing or content */
+            .header > * {
+              margin: 0;
+              padding: 0;
             }
             
             .name {
@@ -226,6 +268,17 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
                 content: none !important;
               }
               
+              /* Prevent browser default print headers */
+              @page :first {
+                margin-top: 0 !important;
+              }
+              
+              /* Force hide any extra content */
+              *::before,
+              *::after {
+                content: none !important;
+              }
+              
               body { 
                 margin: 0; 
                 padding: 0;
@@ -338,8 +391,37 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
       printWindow.document.write(htmlContent);
       printWindow.document.close();
       
-      // Wait for content to load, then print
+      // Wait for content to load, then clean up and print
       setTimeout(() => {
+        // Actively remove any unwanted content that might have appeared
+        try {
+          const header = printWindow.document.querySelector('.header');
+          if (header) {
+            // Remove any text nodes that aren't the name or contact
+            const walker = printWindow.document.createTreeWalker(
+              header,
+              NodeFilter.SHOW_TEXT
+            );
+            
+            let node;
+            while (node = walker.nextNode()) {
+              const text = node.textContent?.trim();
+              if (text && !text.includes(resume.personal_info.name) && 
+                  !text.includes(resume.personal_info.email) &&
+                  !text.includes(resume.personal_info.phone) &&
+                  !text.includes(resume.personal_info.location)) {
+                // This might be unwanted content, remove the parent element if it's not name or contact
+                const parent = node.parentElement;
+                if (parent && !parent.classList.contains('name') && !parent.classList.contains('contact')) {
+                  parent.remove();
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.log('Cleanup error (non-critical):', error);
+        }
+        
         printWindow.print();
         printWindow.close();
       }, 500);
