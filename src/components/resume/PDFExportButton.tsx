@@ -151,18 +151,20 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
             /* Restore bullet points - ensure they're visible */
             .bullets {
               margin-top: 2px;
-              padding-left: 0;
+              padding-left: 20px !important;
               list-style: none;
               display: block !important;
+              border: 1px solid transparent; /* Debug border */
             }
             
             .bullets li {
               margin-bottom: ${fontConfig.bulletSpacing}px;
               font-size: ${fontConfig.bulletFontSize}px !important;
               line-height: ${fontConfig.lineHeight}px !important;
-              padding-left: 10px;
+              padding-left: 15px !important;
               position: relative;
               display: list-item !important;
+              border: 1px solid transparent; /* Debug border */
             }
             
             .bullets li:before {
@@ -170,6 +172,27 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
               position: absolute;
               left: 0;
               display: inline !important;
+              font-weight: bold;
+              color: #000;
+              font-size: ${fontConfig.bulletFontSize}px !important;
+            }
+            
+            /* Alternative bullet styles if the above doesn't work */
+            .bullets li {
+              list-style-type: disc !important;
+            }
+            
+            /* Force bullet visibility with multiple approaches */
+            .bullets li::marker {
+              content: "• " !important;
+              color: #000 !important;
+              font-weight: bold !important;
+            }
+            
+            /* Additional bullet fallback */
+            .bullets li:after {
+              content: "";
+              display: none;
             }
             
             .name {

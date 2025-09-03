@@ -40,12 +40,14 @@ export async function POST(request: NextRequest) {
 
 🚨 CRITICAL: You MUST produce a resume that fits on ONE A4 page (210mm x 297mm). This is NON-NEGOTIABLE.
 
+🚨 **QUANTIFIABLE ACHIEVEMENTS ARE MANDATORY**: EVERY single bullet point MUST contain a number, percentage, or metric. This is NON-NEGOTIABLE.
+
 ---
 
 🎯 YOUR MISSION
 Transform the resume into a SINGLE-PAGE format with:
 - Include ALL relevant experience and achievements
-- Each bullet MUST include a number/metric/percentage
+- **EVERY bullet MUST include a number/metric/percentage**
 - Use ultra-compact, dense formatting
 - NO professional summary (skip it to save space)
 - **TRANSLATE ALL HEBREW TEXT TO PROFESSIONAL ENGLISH**
@@ -94,6 +96,16 @@ Transform the resume into a SINGLE-PAGE format with:
      * "Provided support to 100+ users, resolved 95% of tickets"
      * "Monitored networks covering 3 office locations"
      * "Automated testing for 15+ applications, reduced manual effort by 40%"
+   
+   **EXAMPLE TRANSFORMATION (Carlos Martinez resume):**
+   ❌ WRONG (no numbers): "Designed web apps with Angular, Java Spring"
+   ✅ CORRECT (with numbers): "Designed 10+ web apps with Angular, Java Spring, reduced development time by 30%"
+   
+   ❌ WRONG (no numbers): "Maintained Windows, Linux servers"
+   ✅ CORRECT (with numbers): "Maintained 15+ Windows/Linux servers with 99.5% uptime"
+   
+   ❌ WRONG (no numbers): "Monitored networks, provided first-level support"
+   ✅ CORRECT (with numbers): "Monitored networks covering 3 locations, provided support to 200+ users"
 
 5. **BULLET POINT RULES**
    - Include ALL relevant bullets for each position
