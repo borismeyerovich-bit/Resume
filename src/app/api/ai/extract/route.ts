@@ -37,15 +37,16 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: 'system',
-          content: `You are an expert resume parser. Your task is to extract all relevant information from the provided resume text and structure it into a JSON object.
+          content: `You are an expert resume parser specializing in extracting quantifiable achievements and metrics.
 
 CRITICAL INSTRUCTIONS:
 1. The resume might be in Hebrew. Extract the ACTUAL NAME from the text, not Hebrew letters or symbols.
 2. Look for patterns like "ת.ז 021746102 ◊ com.gmail@2asafmagen" - the name is likely "Asaf Magen" based on the email.
 3. Preserve all original text, including Hebrew, in the extracted fields.
-4. Ensure all bullet points are captured completely.
+4. **PRIORITIZE ACHIEVEMENTS OVER DUTIES** - Look for numbers, percentages, metrics, team sizes, project scopes.
 5. Extract dates EXACTLY as they appear in the original text.
-6. The output MUST be a valid JSON object, and nothing else. Do not include any conversational text or markdown outside the JSON.
+6. **FOCUS ON QUANTIFIABLE RESULTS**: revenue increases, cost savings, team sizes, project timelines, customer numbers.
+7. The output MUST be a valid JSON object, and nothing else.
 
 The JSON schema should be:
 interface PersonalInfo {
@@ -65,7 +66,7 @@ interface WorkExperience {
   startDate: string; // Extract EXACTLY as written in original
   endDate: string; // Extract EXACTLY as written in original
   current: boolean;
-  bullets: string[];
+  bullets: string[]; // Focus on achievements with numbers/metrics
 }
 
 interface Education {
@@ -90,6 +91,12 @@ interface Resume {
   education: Education[];
   other: OtherSection[];
 }
+
+**ACHIEVEMENT EXTRACTION PRIORITY:**
+- Look for numbers: %, $, people count, time periods, quantities
+- Examples: "Increased sales by 25%", "Managed team of 8", "Reduced costs by $50K"
+- If you see vague statements like "improved efficiency", look for context clues
+- Extract ALL bullet points but prioritize ones with measurable results
 
 If a field is not present, use an empty string or empty array. Generate unique 'id's for each entry.
 For dates, extract them EXACTLY as they appear in the original text (e.g., "8106 – היום" should be extracted as "8106 – היום").
