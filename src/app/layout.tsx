@@ -13,11 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ResumeTransformer - AI-Powered Resume Builder",
-  description: "Transform your resume into a professional American-style format using AI. Upload, edit, and export your resume with quantifiable achievements.",
-  keywords: ["resume", "AI", "job application", "career", "professional"],
+  title: "ResumeTransformer - Professional US-Style Resume Builder",
+  description: "Transform any resume into a professional US-style format. Supports Hebrew, Spanish, and other languages with perfect translation and ATS optimization.",
+  keywords: ["resume", "AI", "job application", "career", "professional", "Hebrew", "Spanish", "multilingual", "ATS optimized"],
   authors: [{ name: "ResumeTransformer" }],
-  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function RootLayout({

@@ -569,66 +569,66 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" style={{ padding: "8px" }}>
-      <div className="max-w-4xl mx-auto px-4">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 py-12">
+        {/* Header Section with Logo and Tagline */}
         <div className="text-center mb-12">
-          <div className="flex justify-between items-start mb-8">
-            <div className="flex-1">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                ResumeTransformer
-              </h1>
-              <p className="text-xl text-gray-600">
-                Transform your resume into a professional American-style format
-                using AI
-              </p>
+          {/* Logo */}
+          <div className="flex justify-center items-center mb-6">
+            <div className="flex items-center space-x-3">
+              {/* Document Icon */}
+              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              {/* Logo Text */}
+              <div className="flex items-baseline space-x-1">
+                <span className="text-4xl font-bold text-blue-600">Resume</span>
+                <span className="text-4xl font-bold text-green-600">Transformer</span>
+              </div>
             </div>
+          </div>
 
-            {/* Mock Resume Dropdown */}
-            <div className="relative">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowMockDropdown(!showMockDropdown);
-                }}
-                className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center gap-1"
-              >
-                Load Mock
-                <span className="text-xs">▼</span>
-              </button>
+          {/* Tagline */}
+          <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto leading-relaxed">
+            Transform any resume into a professional US-style format. Simply paste your resume content and get an optimized version instantly.
+          </p>
 
-              {showMockDropdown && (
-                <div
-                  className="absolute top-full right-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="py-1">
-                    {mockResumes.map((mock, index) => (
-                      <button
-                        key={index}
-                        onClick={() => loadMockResume(mock.data, mock.name)}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${mock.color}`}
-                      >
-                        {mock.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+          {/* Feature Highlights */}
+          <div className="flex justify-center items-center space-x-8 mb-8">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+              <span className="text-gray-600 font-medium">Any Language</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+              <span className="text-gray-600 font-medium">US Format</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+              <span className="text-gray-600 font-medium">ATS Optimized</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+              <span className="text-gray-600 font-medium">Instant Results</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Paste Your Resume Text
-            </h2>
-            <p className="text-gray-600">
-              Copy and paste your resume content below to transform it into
-              American style
-            </p>
+        {/* Main Input Card */}
+        <div className="bg-white rounded-xl shadow-lg p-8">
+          {/* Input Header */}
+          <div className="flex items-center mb-6">
+            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">Original Resume</h2>
           </div>
 
+          {/* Input Form */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -644,39 +644,94 @@ export default function Home() {
               <textarea
                 id="resume-text"
                 name="resume-text"
-                placeholder="Paste your resume content here... (Hebrew or English)"
-                className="w-full h-96 px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                placeholder="Paste your resume content here... (any language, any format)"
+                className="w-full h-96 px-6 py-4 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-gray-900 text-base leading-relaxed transition-colors duration-200"
                 disabled={isProcessing}
-                style={{ color: "black" }}
                 required
               />
             </div>
 
+            {/* Action Button */}
             <div className="flex justify-center">
               <button
                 type="submit"
                 disabled={isProcessing}
-                className="px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
+                className="w-full max-w-md px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold text-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-3 shadow-lg"
               >
-                {isProcessing ? "Processing..." : "Transform Resume"}
+                {isProcessing ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>Transform to US Format</span>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </>
+                )}
               </button>
             </div>
           </form>
 
-          <div className="mt-6 p-4 bg-blue-50 rounded-md">
-            <h3 className="text-sm font-medium text-blue-900 mb-2">Tips:</h3>
-            <ul className="text-sm text-blue-800 space-y-1">
-              <li>• Copy the text from your PDF or Word document</li>
-              <li>
-                • Include all sections: personal info, work experience,
-                education, skills
+          {/* Tips Section */}
+          <div className="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-100">
+            <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Pro Tips
+            </h3>
+            <ul className="text-blue-800 space-y-2">
+              <li className="flex items-start">
+                <span className="text-blue-600 mr-2">•</span>
+                Copy the text from your PDF or Word document
               </li>
-              <li>
-                • The AI will extract and transform the information
-                automatically
+              <li className="flex items-start">
+                <span className="text-blue-600 mr-2">•</span>
+                Include all sections: personal info, work experience, education, skills
+              </li>
+              <li className="flex items-start">
+                <span className="text-blue-600 mr-2">•</span>
+                The AI will extract and transform the information automatically
+              </li>
+              <li className="flex items-start">
+                <span className="text-blue-600 mr-2">•</span>
+                Supports Hebrew, Spanish, and other languages with perfect translation
               </li>
             </ul>
           </div>
+        </div>
+
+        {/* Mock Resume Section (Hidden by default, can be toggled) */}
+        <div className="mt-8 text-center">
+          <button
+            onClick={() => setShowMockDropdown(!showMockDropdown)}
+            className="text-gray-500 hover:text-gray-700 text-sm underline"
+          >
+            Load Sample Resume
+          </button>
+          
+          {showMockDropdown && (
+            <div className="mt-4 p-4 bg-white rounded-lg shadow-md border border-gray-200">
+              <h4 className="text-sm font-medium text-gray-700 mb-3">Choose a sample resume:</h4>
+              <div className="flex flex-wrap justify-center gap-2">
+                {mockResumes.map((mock, index) => (
+                  <button
+                    key={index}
+                    onClick={() => loadMockResume(mock.data, mock.name)}
+                    className={`px-3 py-2 text-xs rounded-md border transition-colors ${mock.color}`}
+                  >
+                    {mock.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
