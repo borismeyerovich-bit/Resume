@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     console.log('📄 Input resume:', resume);
 
     const chatCompletion = await openai.chat.completions.create({
-      model: 'gpt-4o', // Using GPT-4o for better performance
+      model: 'gpt-4o', // Using GPT-4o for better performance and translation
       messages: [
         {
           role: 'system',
@@ -48,18 +48,29 @@ Transform the resume into a SINGLE-PAGE format with:
 - Each bullet MUST include a number/metric/percentage
 - Use ultra-compact, dense formatting
 - NO professional summary (skip it to save space)
+- **TRANSLATE ALL HEBREW TEXT TO PROFESSIONAL ENGLISH**
 
 ---
 
 🧠 STRICT INSTRUCTIONS
 
-1. **ONE PAGE ENFORCEMENT - USE FONT SIZING, NOT CONTENT CUTTING**
+1. **TRANSLATION REQUIREMENT (CRITICAL)**
+   - Translate ALL Hebrew text to professional American English
+   - Location: "בת ים" → "Bat Yam, Israel"
+   - Education: "בוגר תואר ראשון" → "Bachelor's Degree"
+   - Institution: "אוניברסיטה העברית" → "The Hebrew University"
+   - Field: "כלכלה ומנהל עסקים" → "Economics and Business Administration"
+   - Dates: "8106 – היום" → "06/2018 – Present"
+   - Company names: Add English descriptions for local companies
+   - **USE YOUR EXPERTISE IN HEBREW-ENGLISH TRANSLATION TO PROVIDE ACCURATE, PROFESSIONAL TRANSLATIONS**
+
+2. **ONE PAGE ENFORCEMENT - USE FONT SIZING, NOT CONTENT CUTTING**
    - Keep ALL relevant content - do NOT cut jobs or bullets
    - Use ultra-compact formatting with minimal spacing
    - Dense layout with tight line spacing
    - Single-line headers and minimal whitespace
 
-2. **QUANTIFIABLE ACHIEVEMENTS (REQUIRED)**
+3. **QUANTIFIABLE ACHIEVEMENTS (REQUIRED)**
    - EVERY bullet point MUST include a number
    - Examples: "Increased sales by 25%", "Reduced costs by $50K", "Led team of 8 developers"
    - If no metrics exist, CREATE realistic ones like:
@@ -70,14 +81,14 @@ Transform the resume into a SINGLE-PAGE format with:
      * "Delivered project worth ~$100K"
      * "Led team of ~8 developers"
 
-3. **BULLET POINT RULES**
+4. **BULLET POINT RULES**
    - Include ALL relevant bullets for each position
    - Each bullet: 6-10 words maximum for density
    - Start with strong action verbs: Led, Built, Increased, Reduced, Managed, Delivered
    - Format: "Action + Result + Number"
    - Example: "Led team of 6 developers, delivered project 2 weeks early"
 
-4. **SPACE OPTIMIZATION - DENSE FORMATTING**
+5. **SPACE OPTIMIZATION - DENSE FORMATTING**
    - Personal info: single line only
    - Job titles: one line
    - Company names: one line
@@ -85,14 +96,14 @@ Transform the resume into a SINGLE-PAGE format with:
    - Minimal spacing between sections (2-3 lines max)
    - Minimal spacing between bullets (1 line max)
 
-5. **CONTENT PRESERVATION - KEEP EVERYTHING**
+6. **CONTENT PRESERVATION - KEEP EVERYTHING**
    - Include ALL work experience positions
    - Include ALL education details
    - Include ALL relevant skills
    - Include ALL certifications, languages, military service
    - Use font sizing and spacing to fit everything
 
-6. **ADDITIONAL INFORMATION STRUCTURE**
+7. **ADDITIONAL INFORMATION STRUCTURE**
    - Each section (Projects, Awards, Languages, etc.) should be structured like a job
    - Use descriptive titles instead of generic ones:
      * "Projects & Open Source" instead of just "Projects"
@@ -111,37 +122,37 @@ interface AmericanizedResume {
     name: string;
     email: string;
     phone: string;
-    location: string;
+    location: string; // MUST be in English (e.g., "Bat Yam, Israel")
     linkedin?: string;
     website?: string;
   };
   work_experience: {
     id: string;
-    company: string;
-    position: string;
-    location: string;
-    startDate: string;
-    endDate: string;
+    company: string; // MUST be in English
+    position: string; // MUST be in English
+    location: string; // MUST be in English
+    startDate: string; // MM/YYYY format
+    endDate: string; // MM/YYYY or "Present"
     current: boolean;
-    bullets: string[]; // ALL relevant bullets with numbers
+    bullets: string[]; // ALL relevant bullets with numbers, MUST be in English
   }[];
   education: {
     id: string;
-    institution: string;
-    degree: string;
-    field?: string;
-    location: string;
-    graduationDate: string;
+    institution: string; // MUST be in English
+    degree: string; // MUST be in English
+    field?: string; // MUST be in English
+    location: string; // MUST be in English
+    graduationDate: string; // YYYY format
   }[];
-  skills: string[]; // ALL relevant skills
+  skills: string[]; // ALL relevant skills, MUST be in English
   other: {
     id: string;
-    title: string; // Descriptive section title (e.g., "Projects & Open Source", "Awards & Recognition")
-    items: string[]; // Bullet points with quantifiable achievements (like job bullets)
+    title: string; // Descriptive section title in English
+    items: string[]; // Bullet points with quantifiable achievements in English
   }[];
 }
 
-REMEMBER: Keep ALL content, use dense formatting. Font sizing will handle the one-page constraint.
+REMEMBER: Keep ALL content, use dense formatting, and TRANSLATE ALL HEBREW TO ENGLISH. Font sizing will handle the one-page constraint.
 
 **EXAMPLE ADDITIONAL INFORMATION STRUCTURE:**
 Each section should have a descriptive title and bullet points with quantifiable achievements, just like work experience:
@@ -158,7 +169,7 @@ Structure each section like a mini-job with title + achievement bullets.`
         },
       ],
       response_format: { type: 'json_object' },
-      temperature: 0.1,
+      temperature: 0.3, // Slightly higher for better translation creativity while maintaining structure
       max_tokens: 4000, // Increased token limit
     });
 
