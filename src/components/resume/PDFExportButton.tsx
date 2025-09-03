@@ -132,13 +132,6 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
               display: none !important;
             }
             
-            /* Hide any text that might contain "resume:" or similar */
-            .header:contains("resume:"),
-            .header:contains("Resume:"),
-            .header:contains("RESUME:") {
-              display: none !important;
-            }
-            
             /* Additional safety: hide any element that might contain unwanted text */
             .header *:not(.name):not(.contact) {
               display: none !important;
@@ -153,6 +146,30 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
             .header > * {
               margin: 0;
               padding: 0;
+            }
+            
+            /* Restore bullet points - ensure they're visible */
+            .bullets {
+              margin-top: 2px;
+              padding-left: 0;
+              list-style: none;
+              display: block !important;
+            }
+            
+            .bullets li {
+              margin-bottom: ${fontConfig.bulletSpacing}px;
+              font-size: ${fontConfig.bulletFontSize}px !important;
+              line-height: ${fontConfig.lineHeight}px !important;
+              padding-left: 10px;
+              position: relative;
+              display: list-item !important;
+            }
+            
+            .bullets li:before {
+              content: "•";
+              position: absolute;
+              left: 0;
+              display: inline !important;
             }
             
             .name {

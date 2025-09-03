@@ -87,6 +87,13 @@ Transform the resume into a SINGLE-PAGE format with:
      * "Increased customer satisfaction by ~25%"
      * "Delivered project worth ~$100K"
      * "Led team of ~8 developers"
+   - **CRITICAL: NO bullet point should be without a number**
+   - For generic tasks, add realistic metrics:
+     * "Maintained 20+ servers with 99.9% uptime"
+     * "Documented 50+ IT processes, improved protocols by 30%"
+     * "Provided support to 100+ users, resolved 95% of tickets"
+     * "Monitored networks covering 3 office locations"
+     * "Automated testing for 15+ applications, reduced manual effort by 40%"
 
 5. **BULLET POINT RULES**
    - Include ALL relevant bullets for each position
@@ -118,6 +125,12 @@ Transform the resume into a SINGLE-PAGE format with:
      * "Languages & Certifications" instead of just "Languages"
    - Each section should have relevant bullet points with quantifiable achievements
    - Format: Title + Bullets (like work experience but for non-work activities)
+   - **CRITICAL: Every bullet in Additional Information MUST also have numbers:**
+     * Skills: "Java (5+ years), JavaScript (3+ years), Python (2+ years)"
+     * Projects: "Built web app with 1000+ users, reduced load time by 40%"
+     * Awards: "Employee of the Year 2021, recognized by 50+ team members"
+     * Certifications: "AWS Certified (2022), Scrum Master (2021), 3+ professional certifications"
+     * Languages: "English (Native), Spanish (Fluent), French (Intermediate - B2 level)"
 
 ---
 
@@ -165,6 +178,8 @@ REMEMBER: Keep ALL content, use dense formatting, and TRANSLATE ALL HEBREW TO EN
 - **EMAIL ADDRESSES**: Never translate or modify (e.g., "asafmagen2@gmail.com" stays "asafmagen2@gmail.com")
 - **HEBREW TEXT**: Must be translated to professional English
 - **ONE PAGE**: Use font sizing, not content cutting
+- **QUANTIFIABLE ACHIEVEMENTS**: EVERY bullet point MUST contain a number or metric
+- **BULLET POINTS**: Must be visible and properly formatted in PDF output
 
 **EXAMPLE ADDITIONAL INFORMATION STRUCTURE:**
 Each section should have a descriptive title and bullet points with quantifiable achievements, just like work experience:
@@ -173,7 +188,9 @@ Each section should have a descriptive title and bullet points with quantifiable
 - "Awards & Recognition" with bullets like "Employee of the Year 2021 at Tech Corp Inc."
 - "Languages & Certifications" with bullets like "English (Native), Spanish (Fluent)"
 
-Structure each section like a mini-job with title + achievement bullets.`
+Structure each section like a mini-job with title + achievement bullets.
+
+**FINAL CHECK: Before returning JSON, verify that EVERY bullet point contains a number, percentage, or metric.`
         },
         {
           role: 'user',
