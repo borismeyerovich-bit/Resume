@@ -64,13 +64,20 @@ Transform the resume into a SINGLE-PAGE format with:
    - Company names: Add English descriptions for local companies
    - **USE YOUR EXPERTISE IN HEBREW-ENGLISH TRANSLATION TO PROVIDE ACCURATE, PROFESSIONAL TRANSLATIONS**
 
-2. **ONE PAGE ENFORCEMENT - USE FONT SIZING, NOT CONTENT CUTTING**
+2. **EMAIL PRESERVATION (CRITICAL)**
+   - **DO NOT TRANSLATE OR MODIFY EMAIL ADDRESSES**
+   - Email addresses must remain EXACTLY as extracted
+   - Example: "asafmagen2@gmail.com" must stay "asafmagen2@gmail.com"
+   - Email addresses are language-agnostic and should never be changed
+   - This applies to all email fields: personal email, work email, etc.
+
+3. **ONE PAGE ENFORCEMENT - USE FONT SIZING, NOT CONTENT CUTTING**
    - Keep ALL relevant content - do NOT cut jobs or bullets
    - Use ultra-compact formatting with minimal spacing
    - Dense layout with tight line spacing
    - Single-line headers and minimal whitespace
 
-3. **QUANTIFIABLE ACHIEVEMENTS (REQUIRED)**
+4. **QUANTIFIABLE ACHIEVEMENTS (REQUIRED)**
    - EVERY bullet point MUST include a number
    - Examples: "Increased sales by 25%", "Reduced costs by $50K", "Led team of 8 developers"
    - If no metrics exist, CREATE realistic ones like:
@@ -81,14 +88,14 @@ Transform the resume into a SINGLE-PAGE format with:
      * "Delivered project worth ~$100K"
      * "Led team of ~8 developers"
 
-4. **BULLET POINT RULES**
+5. **BULLET POINT RULES**
    - Include ALL relevant bullets for each position
    - Each bullet: 6-10 words maximum for density
    - Start with strong action verbs: Led, Built, Increased, Reduced, Managed, Delivered
    - Format: "Action + Result + Number"
    - Example: "Led team of 6 developers, delivered project 2 weeks early"
 
-5. **SPACE OPTIMIZATION - DENSE FORMATTING**
+6. **SPACE OPTIMIZATION - DENSE FORMATTING**
    - Personal info: single line only
    - Job titles: one line
    - Company names: one line
@@ -96,14 +103,14 @@ Transform the resume into a SINGLE-PAGE format with:
    - Minimal spacing between sections (2-3 lines max)
    - Minimal spacing between bullets (1 line max)
 
-6. **CONTENT PRESERVATION - KEEP EVERYTHING**
+7. **CONTENT PRESERVATION - KEEP EVERYTHING**
    - Include ALL work experience positions
    - Include ALL education details
    - Include ALL relevant skills
    - Include ALL certifications, languages, military service
    - Use font sizing and spacing to fit everything
 
-7. **ADDITIONAL INFORMATION STRUCTURE**
+8. **ADDITIONAL INFORMATION STRUCTURE**
    - Each section (Projects, Awards, Languages, etc.) should be structured like a job
    - Use descriptive titles instead of generic ones:
      * "Projects & Open Source" instead of just "Projects"
@@ -120,7 +127,7 @@ Return valid JSON only. The resume will be formatted with appropriate font sizin
 interface AmericanizedResume {
   personal_info: {
     name: string;
-    email: string;
+    email: string; // MUST remain EXACTLY as extracted (e.g., "asafmagen2@gmail.com")
     phone: string;
     location: string; // MUST be in English (e.g., "Bat Yam, Israel")
     linkedin?: string;
@@ -153,6 +160,11 @@ interface AmericanizedResume {
 }
 
 REMEMBER: Keep ALL content, use dense formatting, and TRANSLATE ALL HEBREW TO ENGLISH. Font sizing will handle the one-page constraint.
+
+**CRITICAL REMINDERS:**
+- **EMAIL ADDRESSES**: Never translate or modify (e.g., "asafmagen2@gmail.com" stays "asafmagen2@gmail.com")
+- **HEBREW TEXT**: Must be translated to professional English
+- **ONE PAGE**: Use font sizing, not content cutting
 
 **EXAMPLE ADDITIONAL INFORMATION STRUCTURE:**
 Each section should have a descriptive title and bullet points with quantifiable achievements, just like work experience:

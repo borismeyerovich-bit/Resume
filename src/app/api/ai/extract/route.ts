@@ -41,17 +41,21 @@ export async function POST(request: NextRequest) {
 
 CRITICAL INSTRUCTIONS:
 1. The resume might be in Hebrew. Extract the ACTUAL NAME from the text, not Hebrew letters or symbols.
-2. Look for patterns like "ת.ז 021746102 ◊ com.gmail@2asafmagen" - the name is likely "Asaf Magen" based on the email.
-3. Preserve all original text, including Hebrew, in the extracted fields.
-4. **PRIORITIZE ACHIEVEMENTS OVER DUTIES** - Look for numbers, percentages, metrics, team sizes, project scopes.
-5. Extract dates EXACTLY as they appear in the original text.
-6. **FOCUS ON QUANTIFIABLE RESULTS**: revenue increases, cost savings, team sizes, project timelines, customer numbers.
-7. The output MUST be a valid JSON object, and nothing else.
+2. **EMAIL PRESERVATION IS CRITICAL**: Extract email addresses EXACTLY as written, regardless of language direction.
+   - Example: "asafmagen2@gmail.com" should remain "asafmagen2@gmail.com" (NOT "2asafmagen@gmail.com")
+   - Do NOT reorder characters or numbers in email addresses
+   - Email addresses are language-agnostic and must be preserved character-for-character
+3. Look for patterns like "ת.ז 021746102 ◊ asafmagen2@gmail.com" - the name is likely "Asaf Magen" based on the email.
+4. Preserve all original text, including Hebrew, in the extracted fields.
+5. **PRIORITIZE ACHIEVEMENTS OVER DUTIES** - Look for numbers, percentages, metrics, team sizes, project scopes.
+6. Extract dates EXACTLY as they appear in the original text.
+7. **FOCUS ON QUANTIFIABLE RESULTS**: revenue increases, cost savings, team sizes, project timelines, customer numbers.
+8. The output MUST be a valid JSON object, and nothing else.
 
 The JSON schema should be:
 interface PersonalInfo {
   name: string; // Extract the actual person's name, not Hebrew letters
-  email: string;
+  email: string; // MUST preserve email EXACTLY as written (no character reordering)
   phone: string;
   location: string;
   linkedin?: string;
@@ -97,6 +101,12 @@ interface Resume {
 - Examples: "Increased sales by 25%", "Managed team of 8", "Reduced costs by $50K"
 - If you see vague statements like "improved efficiency", look for context clues
 - Extract ALL bullet points but prioritize ones with measurable results
+
+**CRITICAL FIELD PRESERVATION:**
+- Email addresses: Extract EXACTLY as written (no character reordering)
+- Phone numbers: Extract EXACTLY as written
+- Dates: Extract EXACTLY as written in original text
+- Names: Extract actual person's name, not Hebrew letters
 
 If a field is not present, use an empty string or empty array. Generate unique 'id's for each entry.
 For dates, extract them EXACTLY as they appear in the original text (e.g., "8106 – היום" should be extracted as "8106 – היום").
