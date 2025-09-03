@@ -92,6 +92,15 @@ Transform the resume into a SINGLE-PAGE format with:
    - Include ALL certifications, languages, military service
    - Use font sizing and spacing to fit everything
 
+6. **ADDITIONAL INFORMATION STRUCTURE**
+   - Each section (Projects, Awards, Languages, etc.) should be structured like a job
+   - Use descriptive titles instead of generic ones:
+     * "Projects & Open Source" instead of just "Projects"
+     * "Awards & Recognition" instead of just "Awards"
+     * "Languages & Certifications" instead of just "Languages"
+   - Each section should have relevant bullet points with quantifiable achievements
+   - Format: Title + Bullets (like work experience but for non-work activities)
+
 ---
 
 📦 OUTPUT FORMAT
@@ -127,12 +136,21 @@ interface AmericanizedResume {
   skills: string[]; // ALL relevant skills
   other: {
     id: string;
-    title: string;
-    items: string[]; // ALL relevant items
+    title: string; // Descriptive section title (e.g., "Projects & Open Source", "Awards & Recognition")
+    items: string[]; // Bullet points with quantifiable achievements (like job bullets)
   }[];
 }
 
-REMEMBER: Keep ALL content, use dense formatting. Font sizing will handle the one-page constraint.`
+REMEMBER: Keep ALL content, use dense formatting. Font sizing will handle the one-page constraint.
+
+**EXAMPLE ADDITIONAL INFORMATION STRUCTURE:**
+Each section should have a descriptive title and bullet points with quantifiable achievements, just like work experience:
+
+- "Projects & Open Source" with bullets like "Open source contributor with 500+ GitHub stars"
+- "Awards & Recognition" with bullets like "Employee of the Year 2021 at Tech Corp Inc."
+- "Languages & Certifications" with bullets like "English (Native), Spanish (Fluent)"
+
+Structure each section like a mini-job with title + achievement bullets.`
         },
         {
           role: 'user',
