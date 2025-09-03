@@ -34,8 +34,10 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
 
       const htmlContent = `
         <!DOCTYPE html>
-        <html>
+        <html lang="en">
         <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
           <title>Resume - ${resume.personal_info.name}</title>
           <style>
             @page {
@@ -70,6 +72,20 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
               page-break-before: avoid;
             }
             
+            /* Ensure no extra titles or headers appear */
+            @page {
+              margin: 0;
+            }
+            
+            /* Hide any browser-added content */
+            @media print {
+              body::before,
+              body::after {
+                display: none !important;
+                content: none !important;
+              }
+            }
+            
             .resume-container {
               padding: 8px 12px;
               height: 297mm;
@@ -91,6 +107,12 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
               border-bottom: 1px solid #333;
               padding-bottom: ${fontConfig.sectionSpacing / 2}px;
             }
+            
+            /* Ensure header contains only the intended content */
+            .header > *:not(.name):not(.contact) {
+              display: none !important;
+            }
+            
             .name {
               font-size: ${fontConfig.headerFontSize + 6}px !important;
               font-weight: bold;
@@ -189,6 +211,21 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
                 size: A4;
                 margin: 10mm;
               }
+              
+              /* Prevent browser default headers/footers */
+              @page {
+                margin: 10mm;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+              }
+              
+              /* Hide any browser-added content */
+              body::before,
+              body::after {
+                display: none !important;
+                content: none !important;
+              }
+              
               body { 
                 margin: 0; 
                 padding: 0;
@@ -292,7 +329,7 @@ export default function PDFExportButton({ resume, fontConfig }: PDFExportButtonP
 
             </div>
             
-            <div class="watermark">Created by ResumeBuild | Font: ${fontConfig.bodyFontSize}px</div>
+            <div class="watermark">Font: ${fontConfig.bodyFontSize}px</div>
           </div>
         </body>
         </html>
