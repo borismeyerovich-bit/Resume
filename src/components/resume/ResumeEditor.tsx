@@ -159,30 +159,43 @@ export default function ResumeEditor({
       case "skills":
         return (
           <div key="skills" className="relative">
-            <SectionEditor
-              type="skills"
-              data={safeResume.technical_skills}
-              onUpdate={(data) => handleSectionUpdate("technical_skills", data)}
-              fontConfig={editorFontConfig}
-            />
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b border-gray-200 pb-1">
+                Additional Information
+              </h3>
+              <div className="pl-4">
+                <SectionEditor
+                  type="skills"
+                  data={safeResume.technical_skills}
+                  onUpdate={(data) => handleSectionUpdate("technical_skills", data)}
+                  fontConfig={editorFontConfig}
+                />
+              </div>
+            </div>
           </div>
         );
       case "other":
-        return safeResume.other.map((other: any, index: number) => (
-          <div key={`other-${index}`} className="relative">
-            <SectionEditor
-              type="other"
-              data={other}
-              onUpdate={(data) => {
-                const updatedOther = [...safeResume.other];
-                updatedOther[index] = data;
-                handleSectionUpdate("other", updatedOther);
-              }}
-              onDelete={() => handleSectionDelete("other", index)}
-              fontConfig={editorFontConfig}
-            />
+        return (
+          <div key="other" className="relative">
+            <div className="pl-4">
+              {safeResume.other.map((other: any, index: number) => (
+                <div key={`other-${index}`} className="relative">
+                  <SectionEditor
+                    type="other"
+                    data={other}
+                    onUpdate={(data) => {
+                      const updatedOther = [...safeResume.other];
+                      updatedOther[index] = data;
+                      handleSectionUpdate("other", updatedOther);
+                    }}
+                    onDelete={() => handleSectionDelete("other", index)}
+                    fontConfig={editorFontConfig}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
-        ));
+        );
       default:
         return null;
     }
