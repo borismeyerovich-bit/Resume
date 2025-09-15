@@ -52,24 +52,30 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: 'system',
-          content: `Expert resume parser. Extract structured data from resume text.
+          content: `Expert resume parser specializing in Hebrew-to-English resume extraction.
 
 CRITICAL INSTRUCTIONS:
-1. The resume might be in Hebrew. Extract the ACTUAL NAME from the text, not Hebrew letters or symbols.
-2. **EMAIL PRESERVATION IS CRITICAL**: Extract email addresses EXACTLY as written, regardless of language direction.
-   - Example: "asafmagen2@gmail.com" should remain "asafmagen2@gmail.com" (NOT "2asafmagen@gmail.com")
-   - Do NOT reorder characters or numbers in email addresses
-   - Email addresses are language-agnostic and must be preserved character-for-character
-4. Preserve all original text, including Hebrew, in the extracted fields.
-5. **PRIORITIZE ACHIEVEMENTS OVER DUTIES** - Look for numbers, percentages, metrics, team sizes, project scopes.
-6. Extract dates EXACTLY as they appear in the original text.
-7. **FOCUS ON QUANTIFIABLE RESULTS**: revenue increases, cost savings, team sizes, project timelines, customer numbers.
-8. The output MUST be a valid JSON object, and nothing else.
+1. **NAME TRANSLATION**: If resume is in Hebrew, translate the person's name to English:
+   - "אסף מגן" → "Asaf Magen"
+   - "דוד כהן" → "David Cohen"
+   - Extract the ENGLISH version of Hebrew names, not Hebrew letters
+2. **EMAIL PRESERVATION IS CRITICAL**: Extract email addresses EXACTLY as written:
+   - Look for patterns like "user@domain.com" 
+   - NEVER reverse or reorder characters in emails
+   - Example: If you see "2asafmagen@gmail.com" in RTL text, extract as "asafmagen2@gmail.com"
+   - Email addresses follow LTR order regardless of text direction
+3. **DATE HANDLING**: 
+   - Translate Hebrew date words: "היום" → "Present", "נוכחי" → "Present"
+   - Keep numbers exactly as written: "2018 – היום" → "2018" and "Present"
+   - Preserve original date format but translate Hebrew words
+4. **HEBREW CONTENT**: Keep Hebrew in company names, positions, and bullet points (will be translated later)
+5. **ACHIEVEMENTS**: Look for numbers, percentages, metrics, team sizes, project scopes.
+6. The output MUST be a valid JSON object, and nothing else.
 
 The JSON schema should be:
 interface PersonalInfo {
-  name: string; // Extract the actual person's name, not Hebrew letters
-  email: string; // MUST preserve email EXACTLY as written (no character reordering)
+  name: string; // Translate Hebrew names to English (e.g., "אסף מגן" → "Asaf Magen")
+  email: string; // MUST preserve email EXACTLY as written (correct RTL reversal)
   phone: string;
   location: string;
   linkedin?: string;
@@ -81,8 +87,8 @@ interface WorkExperience {
   company: string;
   position: string;
   location: string;
-  startDate: string; // Extract EXACTLY as written in original
-  endDate: string; // Extract EXACTLY as written in original
+  startDate: string; // Keep numbers, translate Hebrew words: "2018 – היום" → "2018" 
+  endDate: string; // Keep numbers, translate Hebrew words: "היום" → "Present"
   current: boolean;
   bullets: string[]; // Focus on achievements with numbers/metrics
 }
@@ -117,10 +123,10 @@ interface Resume {
 - Extract ALL bullet points but prioritize ones with measurable results
 
 **CRITICAL FIELD PRESERVATION:**
-- Email addresses: Extract EXACTLY as written (no character reordering)
+- Email addresses: Correct RTL reversal, preserve actual email format
 - Phone numbers: Extract EXACTLY as written
-- Dates: Extract EXACTLY as written in original text
-- Names: Extract actual person's name, not Hebrew letters
+- Dates: Translate Hebrew words, preserve numbers
+- Names: Translate Hebrew names to English equivalents
 
 If a field is not present, use an empty string or empty array. Generate unique 'id's for each entry.
 
