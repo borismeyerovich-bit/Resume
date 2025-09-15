@@ -19,10 +19,10 @@ export async function POST(request: NextRequest) {
       receivedData: body,
       timestamp: new Date().toISOString()
     });
-  } catch (error) {
+  } catch (error: any) {
     return NextResponse.json({ 
       error: 'Failed to parse request body',
-      message: error.message 
+      message: error.message || 'Unknown error'
     }, { status: 400 });
   }
 }

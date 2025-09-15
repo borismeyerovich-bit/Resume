@@ -246,7 +246,7 @@ export function calculateOptimalFontSizing(resume: AmericanizedResume): FontSizi
   }
   
   // Calculate related sizes
-  const headerFontSize = Math.min(bodyFontSize + 2, MAX_FONT_SIZE);
+  const headerFontSize = Math.min(bodyFontSize + 2, MAX_HEADER_SIZE);
   const bulletFontSize = bodyFontSize - 0.5;
   const lineHeight = bodyFontSize * LINE_HEIGHT_MULTIPLIER;
   
