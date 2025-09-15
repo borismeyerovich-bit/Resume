@@ -497,7 +497,9 @@ export default function Home() {
       });
 
       if (!extractResponse.ok) {
-        throw new Error("AI extraction failed");
+        const errorData = await extractResponse.json().catch(() => ({}));
+        console.error("❌ Extract Response Error:", extractResponse.status, errorData);
+        throw new Error(`AI extraction failed: ${extractResponse.status} - ${errorData.error || 'Unknown error'}`);
       }
 
       const extractedData = await extractResponse.json();
@@ -511,16 +513,27 @@ export default function Home() {
       });
 
       if (!transformResponse.ok) {
-        throw new Error("AI transformation failed");
+        const errorData = await transformResponse.json().catch(() => ({}));
+        console.error("❌ Transform Response Error:", transformResponse.status, errorData);
+        throw new Error(`AI transformation failed: ${transformResponse.status} - ${errorData.error || 'Unknown error'}`);
       }
 
       const transformedData = await transformResponse.json();
       console.log("✅ Transformed data:", transformedData);
 
       setResume(transformedData.americanizedResume);
-    } catch (error) {
-      console.error("❌ Error:", error);
-      alert("Error processing resume. Please try again.");
+    } catch (error: any) {
+      console.error("❌ Detailed Error:", error);
+      console.error("❌ Error message:", error?.message);
+      console.error("❌ Error stack:", error?.stack);
+      
+      // More specific error message
+      let errorMessage = "Error processing resume. Please try again.";
+      if (error?.message) {
+        errorMessage = `Error: ${error.message}`;
+      }
+      
+      alert(errorMessage);
     } finally {
       setIsProcessing(false);
     }
