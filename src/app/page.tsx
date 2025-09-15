@@ -509,7 +509,7 @@ export default function Home() {
       const transformResponse = await fetch("/api/ai/transform", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resume: extractedData }),
+        body: JSON.stringify({ resume: extractedData.resumeData }),
       });
 
       if (!transformResponse.ok) {
