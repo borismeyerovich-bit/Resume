@@ -71,13 +71,14 @@ export async function POST(request: NextRequest) {
 
 ---
 
-📅 DATE HANDLING:
-- Respect original format:
-  - If month/year present → use MM/YYYY
-  - If only year → use YYYY
-- Use **original order** (correct RTL if Hebrew)
-- ✅ Do NOT fabricate or guess dates.
-- ❌ If start or end date is missing → leave empty string (e.g., "")
+📅 DATE HANDLING (CRITICAL):
+- **PRESERVE EXACT DATES** from original resume
+- **Hebrew dates**: Only translate words, keep numbers exactly:
+  - "2018 – היום" → "2018 – Present" (NOT "06/2018 – Present")
+  - "2015-2017" → "2015-2017" (NOT "06/2015 – 06/2017")
+- **DO NOT ADD MONTHS** if not in original
+- **DO NOT GUESS OR FABRICATE** any dates
+- Use original format: year-only stays year-only
 
 ---
 
@@ -99,14 +100,22 @@ export async function POST(request: NextRequest) {
 
 ---
 
-🎯 BULLET POINT RULES:
-- Max 3 lines each (not words)
-- Start with action verbs (Managed, Improved, Built, Reduced, etc.)
-- Every bullet must include a number or quantifiable result
-  - If missing: infer a realistic metric (e.g., "~10%", "5+", "$50K+")
-- Examples:
+🎯 BULLET POINT RULES (MANDATORY):
+- **EVERY BULLET MUST CONTAIN A NUMBER** - no exceptions
+- Max 3 lines each, start with action verbs
+- **ADD REALISTIC METRICS** if missing from original:
+  - Team sizes: "Led team of 5-12 developers"
+  - Percentages: "Improved efficiency by 15-40%"
+  - Money: "Managed $50K-2M budget"
+  - Time: "Reduced processing time by 20-50%"
+  - Users/Scale: "Served 1K-10M users"
+- **Examples of GOOD bullets**:
+  - ✅ "Led team of 8 developers, delivered 5 projects on time"
+  - ✅ "Managed $2M annual budget, reduced costs by 15%"
+  - ✅ "Built system serving 100K+ users with 99.9% uptime"
+- **UNACCEPTABLE bullets** (missing numbers):
+  - ❌ "Managed team and delivered projects"
   - ❌ "Handled customer service requests"
-  - ✅ "Handled 100+ customer service requests with 95% satisfaction"
 
 ---
 
