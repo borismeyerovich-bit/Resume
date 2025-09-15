@@ -5,8 +5,8 @@ export async function GET() {
     message: 'Test endpoint working',
     timestamp: new Date().toISOString(),
     env: {
-      hasApiKey: !!process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-      apiKeyPrefix: process.env.NEXT_PUBLIC_OPENAI_API_KEY?.substring(0, 10) + '...'
+      hasApiKey: !!process.env.OPENAI_API_KEY,
+      apiKeyPrefix: process.env.OPENAI_API_KEY?.substring(0, 10) + '...'
     }
   });
 }
