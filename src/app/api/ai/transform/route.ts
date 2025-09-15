@@ -28,8 +28,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Resume data is required for transformation' }, { status: 400 });
     }
 
+    // Input validation
+    if (typeof resume !== 'object' || !resume.personal_info) {
+      return NextResponse.json({ error: 'Invalid resume format' }, { status: 400 });
+    }
+
+    // Size limit check (prevent extremely large payloads)
+    const resumeString = JSON.stringify(resume);
+    if (resumeString.length > 50000) { // ~50KB limit
+      return NextResponse.json({ error: 'Resume data too large' }, { status: 413 });
+    }
+
     console.log('🇺🇸 Transforming resume to American style using OpenAI GPT...');
-    console.log('📄 Input resume:', resume);
+    // Note: Not logging resume content for privacy
 
     const chatCompletion = await openai.chat.completions.create({
       model: 'gpt-4-turbo', // ✅ Updated to GPT-4 Turbo

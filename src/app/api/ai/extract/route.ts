@@ -28,9 +28,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Resume text is required' }, { status: 400 });
     }
 
+    // Input validation
+    if (typeof resumeText !== 'string') {
+      return NextResponse.json({ error: 'Resume text must be a string' }, { status: 400 });
+    }
+
+    // Size limit check (prevent extremely large text)
+    if (resumeText.length > 100000) { // ~100KB limit
+      return NextResponse.json({ error: 'Resume text too large' }, { status: 413 });
+    }
+
+    // Basic content validation
+    if (resumeText.trim().length < 50) {
+      return NextResponse.json({ error: 'Resume text too short' }, { status: 400 });
+    }
+
     console.log('🤖 Extracting resume data using OpenAI GPT...');
-    console.log('📄 Resume text preview:', resumeText.substring(0, 200), '...');
     console.log('📏 Full text length:', resumeText.length);
+    // Note: Not logging resume content for privacy
 
     const chatCompletion = await openai.chat.completions.create({
       model: 'gpt-4o-mini', // ✅ Changed from gpt-4-turbo to gpt-4o-mini
