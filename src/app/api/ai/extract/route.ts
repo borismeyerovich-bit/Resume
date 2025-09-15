@@ -33,11 +33,11 @@ export async function POST(request: NextRequest) {
     console.log('📏 Full text length:', resumeText.length);
 
     const chatCompletion = await openai.chat.completions.create({
-      model: 'gpt-4-turbo', // Using GPT-4 Turbo for better instruction following and consistency
+      model: 'gpt-4o-mini', // ✅ Changed from gpt-4-turbo to gpt-4o-mini
       messages: [
         {
           role: 'system',
-          content: `You are an expert resume parser specializing in extracting quantifiable achievements and metrics.
+          content: `Expert resume parser. Extract structured data from resume text.
 
 CRITICAL INSTRUCTIONS:
 1. The resume might be in Hebrew. Extract the ACTUAL NAME from the text, not Hebrew letters or symbols.
@@ -45,7 +45,6 @@ CRITICAL INSTRUCTIONS:
    - Example: "asafmagen2@gmail.com" should remain "asafmagen2@gmail.com" (NOT "2asafmagen@gmail.com")
    - Do NOT reorder characters or numbers in email addresses
    - Email addresses are language-agnostic and must be preserved character-for-character
-3. Look for patterns like "ת.ז 021746102 ◊ asafmagen2@gmail.com" - the name is likely "Asaf Magen" based on the email.
 4. Preserve all original text, including Hebrew, in the extracted fields.
 5. **PRIORITIZE ACHIEVEMENTS OVER DUTIES** - Look for numbers, percentages, metrics, team sizes, project scopes.
 6. Extract dates EXACTLY as they appear in the original text.
@@ -109,18 +108,17 @@ interface Resume {
 - Names: Extract actual person's name, not Hebrew letters
 
 If a field is not present, use an empty string or empty array. Generate unique 'id's for each entry.
-For dates, extract them EXACTLY as they appear in the original text (e.g., "8106 – היום" should be extracted as "8106 – היום").
-For 'other' sections, group related items under a title (e.g., "Skills", "Awards", "Certifications").
-`
+
+For 'other' sections, group related items under a title (e.g., "Skills", "Awards", "Certifications").`
         },
         {
           role: 'user',
           content: resumeText,
-        },
+        }
       ],
       response_format: { type: 'json_object' },
       temperature: 0.1,
-      max_tokens: 4000, // Increased token limit
+      max_tokens: 2000, // ✅ Reduced from 4000 to 2000
     });
 
     const responseText = chatCompletion.choices[0].message?.content || '';
