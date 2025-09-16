@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { AmericanizedResume } from "../entities/Resume";
 import ResumeEditor from "../components/resume/ResumeEditor";
+import DualInputZone from "../components/resume/DualInputZone";
 
 // Very minimal resume (for testing maximum font scaling UP)
 const MINIMAL_MOCK_RESUME: AmericanizedResume = {
@@ -483,9 +484,59 @@ export default function Home() {
     }
   }, [showMockDropdown]);
 
-  const handleTextSubmit = async (text: string) => {
+  const handleFileSelect = async (file: File) => {
     setIsProcessing(true);
 
+    try {
+      console.log("📁 Processing file:", file.name);
+
+      // Extract text from file first
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const textExtractionResponse = await fetch("/api/ai/extract-text", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!textExtractionResponse.ok) {
+        const errorData = await textExtractionResponse.json().catch(() => ({}));
+        console.error("❌ Text Extraction Error:", textExtractionResponse.status, errorData);
+        throw new Error(`Text extraction failed: ${textExtractionResponse.status} - ${errorData.error || 'Unknown error'}`);
+      }
+
+      const textResult = await textExtractionResponse.json();
+      console.log("✅ Extracted text from file");
+
+      // Now process the extracted text
+      await handleResumeText(textResult.text);
+    } catch (error: any) {
+      console.error("❌ File processing error:", error);
+      let errorMessage = "Error processing file. Please try again.";
+      if (error?.message) {
+        errorMessage = `Error: ${error.message}`;
+      }
+      alert(errorMessage);
+      setIsProcessing(false);
+    }
+  };
+
+  const handleTextSubmit = async (text: string) => {
+    setIsProcessing(true);
+    try {
+      await handleResumeText(text);
+    } catch (error: any) {
+      console.error("❌ Text processing error:", error);
+      let errorMessage = "Error processing text. Please try again.";
+      if (error?.message) {
+        errorMessage = `Error: ${error.message}`;
+      }
+      alert(errorMessage);
+      setIsProcessing(false);
+    }
+  };
+
+  const handleResumeText = async (text: string) => {
     try {
       console.log("📝 Processing text:", text.substring(0, 100) + "...");
 
@@ -605,7 +656,7 @@ export default function Home() {
 
           {/* Tagline */}
           <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Transform any resume into a professional US-style format. Simply paste your resume content and get an optimized version instantly.
+            Transform any resume into a professional US-style format. Upload your file or paste content to get an optimized version instantly.
           </p>
 
           {/* Feature Highlights */}
@@ -629,96 +680,12 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Main Input Card */}
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          {/* Input Header */}
-          <div className="flex items-center mb-6">
-            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900">Original Resume</h2>
-          </div>
-
-          {/* Input Form */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.target as HTMLFormElement);
-              const text = formData.get("resume-text") as string;
-              if (text.trim()) {
-                handleTextSubmit(text.trim());
-              }
-            }}
-            className="space-y-6"
-          >
-            <div>
-              <textarea
-                id="resume-text"
-                name="resume-text"
-                placeholder="Paste your resume content here... (any language, any format)"
-                className="w-full h-96 px-6 py-4 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-gray-900 text-base leading-relaxed transition-colors duration-200"
-                disabled={isProcessing}
-                required
-              />
-            </div>
-
-            {/* Action Button */}
-            <div className="flex justify-center">
-              <button
-                type="submit"
-                disabled={isProcessing}
-                className="w-full max-w-md px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold text-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-3 shadow-lg"
-              >
-                {isProcessing ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Processing...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    <span>Transform to US Format</span>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-
-          {/* Tips Section */}
-          <div className="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-100">
-            <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Pro Tips
-            </h3>
-            <ul className="text-blue-800 space-y-2">
-              <li className="flex items-start">
-                <span className="text-blue-600 mr-2">•</span>
-                Copy the text from your PDF or Word document
-              </li>
-              <li className="flex items-start">
-                <span className="text-blue-600 mr-2">•</span>
-                Include all sections: personal info, work experience, education, skills
-              </li>
-              <li className="flex items-start">
-                <span className="text-blue-600 mr-2">•</span>
-                The AI will extract and transform the information automatically
-              </li>
-              <li className="flex items-start">
-                <span className="text-blue-600 mr-2">•</span>
-                Supports Hebrew, Spanish, and other languages with perfect translation
-              </li>
-            </ul>
-          </div>
-        </div>
+        {/* Dual Input Zone - File Upload + Text Input */}
+        <DualInputZone
+          onFileSelect={handleFileSelect}
+          onTextSubmit={handleTextSubmit}
+          isProcessing={isProcessing}
+        />
 
         {/* Mock Resume Section (Hidden by default, can be toggled) */}
         <div className="mt-8 text-center">
