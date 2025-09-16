@@ -108,135 +108,140 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Fast PDF text extraction - manual approach first, then simpler alternatives
+// PDF text extraction - try multiple approaches focusing on actual content
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
-  console.log('🔄 Trying fast manual PDF text extraction...');
+  console.log('🔄 Trying PDF text extraction...');
   
-  // First try: Enhanced manual PDF text extraction (fast and reliable)
+  // First approach: Try pdf-parse library (most reliable for actual text content)
+  try {
+    console.log('📚 Trying pdf-parse library...');
+    const pdfParse = await import('pdf-parse');
+    const data = await pdfParse.default(buffer);
+    
+    if (data.text && data.text.trim().length > 50) {
+      const cleanedText = data.text
+        .replace(/\r\n/g, '\n')
+        .replace(/\r/g, '\n')
+        .replace(/\s+/g, ' ')
+        .trim();
+      
+      // Filter out obvious PDF metadata
+      if (!cleanedText.includes('FontDescriptor') && 
+          !cleanedText.includes('endobj') &&
+          cleanedText.length < 50000) { // Reasonable text length
+        console.log('✅ pdf-parse extraction successful');
+        console.log('📄 Extracted length:', cleanedText.length);
+        console.log('📄 First 300 chars:', cleanedText.substring(0, 300));
+        return cleanedText;
+      }
+    }
+  } catch (pdfParseError) {
+    console.log('⚠️ pdf-parse failed, trying manual extraction...');
+  }
+  
+  // Second approach: Manual extraction as fallback
   try {
     const extractedText = await manualPDFExtraction(buffer);
     if (extractedText && extractedText.trim().length > 20) {
       console.log('✅ Manual PDF extraction successful');
-      console.log('📄 First 500 chars:', extractedText.substring(0, 500));
+      console.log('📄 First 300 chars:', extractedText.substring(0, 300));
       return extractedText;
     }
   } catch (manualError) {
     console.error('❌ Manual extraction failed:', manualError);
   }
   
-  console.log('❌ PDF text extraction failed - file may be image-based or corrupted');
+  console.log('❌ All PDF text extraction methods failed');
   return '';
 }
 
-// Enhanced manual PDF text extraction
+// Simplified and more effective manual PDF text extraction
 async function manualPDFExtraction(buffer: Buffer): Promise<string> {
   try {
-    console.log('🔍 Scanning PDF buffer for text content...');
+    console.log('🔍 Manual PDF text extraction...');
     
-    // Try multiple encodings to handle Hebrew text properly
-    const encodings = ['utf8', 'binary', 'latin1'];
-    let bestResult = '';
+    const bufferString = buffer.toString('binary');
     
-    for (const encoding of encodings) {
-      try {
-        const bufferString = buffer.toString(encoding as BufferEncoding);
-        
-        // Focus on actual text content, avoid PDF metadata
-        const textPatterns = [
-          // Text in parentheses (most reliable for actual content)
-          /\(([^()]{2,200})\)/g,
-          // Text with Hebrew characters
-          /[\u0590-\u05FF][^<>/]{1,100}/g,
-          // Email patterns
-          /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
-          // Phone patterns
-          /\d{2,3}[-\s]?\d{3,4}[-\s]?\d{3,4}/g,
-          // Date patterns
-          /\d{4}[\s\-–]\d{4}|\d{4}[\s\-–]היום|\d{4}[\s\-–]Present/g
-        ];
-        
-        let extractedText = '';
-                 const foundEmails = new Set();
-         const foundPhones = new Set();
-         const foundDates = new Set();
-        
-        for (const pattern of textPatterns) {
-          const matches = bufferString.match(pattern);
-          if (matches && matches.length > 0) {
-            for (const match of matches) {
-                             // Clean up the match
-               const cleanMatch = match
-                .replace(/^\(|\)$/g, '') // Remove surrounding parentheses
+    // Look for text in PDF streams - more focused approach
+    const streamPattern = /stream\s+(.*?)\s+endstream/g;
+    const streams = bufferString.match(streamPattern) || [];
+    
+    let extractedText = '';
+    
+    for (const stream of streams) {
+      // Look for text operations in the stream
+      const textOperations = [
+        /Tj\s*\((.*?)\)/g,
+        /TJ\s*\[(.*?)\]/g,
+        /'\s*\((.*?)\)/g,
+        /"\s*\((.*?)\)/g
+      ];
+      
+      for (const operation of textOperations) {
+        const matches = stream.match(operation);
+        if (matches) {
+          for (const match of matches) {
+            // Extract text from parentheses
+            const textMatch = match.match(/\((.*?)\)/);
+            if (textMatch && textMatch[1]) {
+              const text = textMatch[1]
                 .replace(/\\[rnt]/g, ' ')
-                .replace(/[<>{}]/g, ' ') // Remove XML/PDF markup
+                .replace(/\\(.)/g, '$1') // Unescape characters
                 .trim();
               
-              // Skip PDF metadata patterns
-              if (cleanMatch.includes('obj') || 
-                  cleanMatch.includes('endobj') || 
-                  cleanMatch.includes('FontDescriptor') ||
-                  cleanMatch.includes('Registry') ||
-                  cleanMatch.includes('Type/Font') ||
-                  cleanMatch.includes('BaseFont') ||
-                  cleanMatch.length < 3) {
-                continue;
-              }
-              
-              // Prioritize important content
-              if (/@/.test(cleanMatch)) {
-                foundEmails.add(cleanMatch);
-              } else if (/\d{2,3}[-\s]?\d{3,4}[-\s]?\d{3,4}/.test(cleanMatch)) {
-                foundPhones.add(cleanMatch);
-              } else if (/\d{4}/.test(cleanMatch) && cleanMatch.length < 50) {
-                foundDates.add(cleanMatch);
-              } else if (cleanMatch.length > 2 && cleanMatch.length < 200) {
-                extractedText += cleanMatch + ' ';
+              // Only include meaningful text (not single characters or PDF commands)
+              if (text.length > 1 && !text.match(/^[0-9\s\-\.]+$/)) {
+                extractedText += text + ' ';
               }
             }
           }
         }
-        
-        // Add found contact info to the beginning
-        let finalText = '';
-        if (foundEmails.size > 0) {
-          finalText += Array.from(foundEmails).join(' ') + ' ';
-        }
-        if (foundPhones.size > 0) {
-          finalText += Array.from(foundPhones).join(' ') + ' ';
-        }
-        if (foundDates.size > 0) {
-          finalText += Array.from(foundDates).join(' ') + ' ';
-        }
-        finalText += extractedText;
-        
-                 if (finalText.trim().length > bestResult.length) {
-           bestResult = finalText.trim();
-         }
-             } catch {
-         console.log(`⚠️ Encoding ${encoding} failed, trying next...`);
-       }
+      }
     }
     
-         if (bestResult.length > 20) {
-       // Final cleanup and length limit
-       let finalText = bestResult
-         .replace(/\s+/g, ' ')
-         .replace(/([a-zA-Z])\s+([a-zA-Z])/g, '$1$2') // Fix broken words
-         .trim();
-       
-       // Limit to 10,000 characters to avoid 413 error
-       if (finalText.length > 10000) {
-         finalText = finalText.substring(0, 10000);
-         console.log('⚠️ Text truncated to 10,000 characters to avoid size limits');
-       }
-       
-       console.log(`✅ Extracted ${finalText.length} characters from PDF`);
-       console.log('📄 Preview:', finalText.substring(0, 200));
-       
-       return finalText;
-     }
+    // Also try direct pattern matching for Hebrew/English text
+    const directTextPatterns = [
+      // Hebrew text
+      /[\u0590-\u05FF][\u0590-\u05FF\s\u0020-\u007E]{2,100}/g,
+      // English words/sentences
+      /[A-Za-z][A-Za-z\s]{3,100}/g,
+      // Email addresses
+      /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
+      // Phone numbers
+      /\d{2,3}[-\s]?\d{3,4}[-\s]?\d{3,4}/g
+    ];
     
-    console.log('⚠️ No meaningful text found in PDF');
+    for (const pattern of directTextPatterns) {
+      const matches = bufferString.match(pattern);
+      if (matches) {
+        for (const match of matches) {
+          // Skip PDF metadata
+          if (!match.includes('obj') && 
+              !match.includes('endobj') && 
+              !match.includes('FontDescriptor') &&
+              !match.includes('Registry') &&
+              match.length > 2) {
+            extractedText += match + ' ';
+          }
+        }
+      }
+    }
+    
+    if (extractedText.trim().length > 20) {
+      // Clean up the final text
+      const cleanedText = extractedText
+        .replace(/\s+/g, ' ')
+        .replace(/([a-zA-Z])\s+([a-zA-Z])/g, '$1$2')
+        .trim()
+        .substring(0, 5000); // Reasonable limit
+      
+      console.log(`✅ Manual extraction found ${cleanedText.length} characters`);
+      console.log('📄 Preview:', cleanedText.substring(0, 200));
+      
+      return cleanedText;
+    }
+    
+    console.log('⚠️ No meaningful text found in manual extraction');
     return '';
   } catch (error) {
     console.error('❌ Manual PDF extraction failed:', error);
