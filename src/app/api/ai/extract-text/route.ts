@@ -141,60 +141,100 @@ async function manualPDFExtraction(buffer: Buffer): Promise<string> {
       try {
         const bufferString = buffer.toString(encoding as BufferEncoding);
         
-        // Multiple patterns to extract text from different PDF structures
-        const patterns = [
-          // Standard text blocks
-          /BT\s*(.*?)\s*ET/g,
-          // Text with positioning
-          /Tj\s*\((.*?)\)/g,
-          // Text arrays
-          /TJ\s*\[(.*?)\]/g,
-          // Direct text strings in parentheses
-          /\(([\u0000-\u007F\u0590-\u05FF\u0600-\u06FF\s]+)\)/g,
-          // Hebrew and English text patterns
-          /[\u0590-\u05FF\u0020-\u007E\s]{3,}/g
+        // Focus on actual text content, avoid PDF metadata
+        const textPatterns = [
+          // Text in parentheses (most reliable for actual content)
+          /\(([^()]{2,200})\)/g,
+          // Text with Hebrew characters
+          /[\u0590-\u05FF][^<>/]{1,100}/g,
+          // Email patterns
+          /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
+          // Phone patterns
+          /\d{2,3}[-\s]?\d{3,4}[-\s]?\d{3,4}/g,
+          // Date patterns
+          /\d{4}[\s\-–]\d{4}|\d{4}[\s\-–]היום|\d{4}[\s\-–]Present/g
         ];
         
         let extractedText = '';
+        let foundEmails = new Set();
+        let foundPhones = new Set();
+        let foundDates = new Set();
         
-        for (const pattern of patterns) {
+        for (const pattern of textPatterns) {
           const matches = bufferString.match(pattern);
           if (matches && matches.length > 0) {
             for (const match of matches) {
               // Clean up the match
               let cleanMatch = match
-                .replace(/BT|ET|Tj|TJ|\[|\]|\(|\)/g, '')
+                .replace(/^\(|\)$/g, '') // Remove surrounding parentheses
                 .replace(/\\[rnt]/g, ' ')
-                .replace(/[^\u0020-\u007E\u0590-\u05FF\u0600-\u06FF\s]/g, ' ')
+                .replace(/[<>{}]/g, ' ') // Remove XML/PDF markup
                 .trim();
               
-              if (cleanMatch.length > 2) {
+              // Skip PDF metadata patterns
+              if (cleanMatch.includes('obj') || 
+                  cleanMatch.includes('endobj') || 
+                  cleanMatch.includes('FontDescriptor') ||
+                  cleanMatch.includes('Registry') ||
+                  cleanMatch.includes('Type/Font') ||
+                  cleanMatch.includes('BaseFont') ||
+                  cleanMatch.length < 3) {
+                continue;
+              }
+              
+              // Prioritize important content
+              if (/@/.test(cleanMatch)) {
+                foundEmails.add(cleanMatch);
+              } else if (/\d{2,3}[-\s]?\d{3,4}[-\s]?\d{3,4}/.test(cleanMatch)) {
+                foundPhones.add(cleanMatch);
+              } else if (/\d{4}/.test(cleanMatch) && cleanMatch.length < 50) {
+                foundDates.add(cleanMatch);
+              } else if (cleanMatch.length > 2 && cleanMatch.length < 200) {
                 extractedText += cleanMatch + ' ';
               }
             }
           }
         }
         
-        if (extractedText.trim().length > bestResult.length) {
-          bestResult = extractedText.trim();
+        // Add found contact info to the beginning
+        let finalText = '';
+        if (foundEmails.size > 0) {
+          finalText += Array.from(foundEmails).join(' ') + ' ';
         }
+        if (foundPhones.size > 0) {
+          finalText += Array.from(foundPhones).join(' ') + ' ';
+        }
+        if (foundDates.size > 0) {
+          finalText += Array.from(foundDates).join(' ') + ' ';
+        }
+        finalText += extractedText;
+        
+                 if (finalText.trim().length > bestResult.length) {
+           bestResult = finalText.trim();
+         }
       } catch (encodingError) {
         console.log(`⚠️ Encoding ${encoding} failed, trying next...`);
       }
     }
     
-    if (bestResult.length > 20) {
-      // Final cleanup
-      const finalText = bestResult
-        .replace(/\s+/g, ' ')
-        .replace(/([a-zA-Z])\s+([a-zA-Z])/g, '$1$2') // Fix broken words
-        .trim();
-      
-      console.log(`✅ Extracted ${finalText.length} characters from PDF`);
-      console.log('📄 Preview:', finalText.substring(0, 200));
-      
-      return finalText;
-    }
+         if (bestResult.length > 20) {
+       // Final cleanup and length limit
+       let finalText = bestResult
+         .replace(/\s+/g, ' ')
+         .replace(/([a-zA-Z])\s+([a-zA-Z])/g, '$1$2') // Fix broken words
+         .trim();
+       
+       // Limit to 10,000 characters to avoid 413 error
+       if (finalText.length > 10000) {
+         finalText = finalText.substring(0, 10000);
+         console.log('⚠️ Text truncated to 10,000 characters to avoid size limits');
+       }
+       
+       console.log(`✅ Extracted ${finalText.length} characters from PDF`);
+       console.log('📄 Preview:', finalText.substring(0, 200));
+       
+       return finalText;
+     }
     
     console.log('⚠️ No meaningful text found in PDF');
     return '';
