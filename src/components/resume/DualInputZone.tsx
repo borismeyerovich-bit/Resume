@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import FileUploadZone from "./FileUploadZone";
-import TextInputZone from "./TextInputZone";
 
 interface DualInputZoneProps {
   onFileSelect: (file: File) => void;

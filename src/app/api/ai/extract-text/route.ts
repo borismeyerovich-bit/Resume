@@ -156,16 +156,16 @@ async function manualPDFExtraction(buffer: Buffer): Promise<string> {
         ];
         
         let extractedText = '';
-        let foundEmails = new Set();
-        let foundPhones = new Set();
-        let foundDates = new Set();
+                 const foundEmails = new Set();
+         const foundPhones = new Set();
+         const foundDates = new Set();
         
         for (const pattern of textPatterns) {
           const matches = bufferString.match(pattern);
           if (matches && matches.length > 0) {
             for (const match of matches) {
-              // Clean up the match
-              let cleanMatch = match
+                             // Clean up the match
+               const cleanMatch = match
                 .replace(/^\(|\)$/g, '') // Remove surrounding parentheses
                 .replace(/\\[rnt]/g, ' ')
                 .replace(/[<>{}]/g, ' ') // Remove XML/PDF markup
@@ -212,9 +212,9 @@ async function manualPDFExtraction(buffer: Buffer): Promise<string> {
                  if (finalText.trim().length > bestResult.length) {
            bestResult = finalText.trim();
          }
-      } catch (encodingError) {
-        console.log(`⚠️ Encoding ${encoding} failed, trying next...`);
-      }
+             } catch {
+         console.log(`⚠️ Encoding ${encoding} failed, trying next...`);
+       }
     }
     
          if (bestResult.length > 20) {
