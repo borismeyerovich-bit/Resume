@@ -28,14 +28,15 @@ export async function POST(request: NextRequest) {
           extractedText = pdfText;
           console.log('✅ PDF text extraction successful');
           console.log('📄 Extracted text preview:', extractedText.substring(0, 300));
-        } else {
-          console.log('⚠️ No readable text found in PDF');
-          return NextResponse.json({ 
-            error: 'No readable text could be extracted from the PDF. Please try converting to text format or use the text input option.',
-            requiresManualInput: true,
-            fileName: file.name
-          }, { status: 400 });
-        }
+                  } else {
+            console.log('⚠️ No text found in PDF using fast extraction');
+            return NextResponse.json({ 
+              error: 'No readable text could be extracted from the PDF. This may be an image-based PDF, password-protected, or use a complex format. Please use the text input option by copy-pasting your resume content.',
+              requiresManualInput: true,
+              fileName: file.name,
+              suggestion: 'Copy the text from your PDF and paste it in the "Paste Text" tab for best results.'
+            }, { status: 400 });
+          }
       } catch (pdfError) {
         console.error('❌ PDF processing failed:', pdfError);
         return NextResponse.json({ 
@@ -107,32 +108,98 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Simple PDF text extraction function
+// Fast PDF text extraction - manual approach first, then simpler alternatives
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
+  console.log('🔄 Trying fast manual PDF text extraction...');
+  
+  // First try: Enhanced manual PDF text extraction (fast and reliable)
   try {
-    // Convert buffer to string and look for readable text patterns
-    const bufferString = buffer.toString('utf8');
+    const extractedText = await manualPDFExtraction(buffer);
+    if (extractedText && extractedText.trim().length > 20) {
+      console.log('✅ Manual PDF extraction successful');
+      console.log('📄 First 500 chars:', extractedText.substring(0, 500));
+      return extractedText;
+    }
+  } catch (manualError) {
+    console.error('❌ Manual extraction failed:', manualError);
+  }
+  
+  console.log('❌ PDF text extraction failed - file may be image-based or corrupted');
+  return '';
+}
+
+// Enhanced manual PDF text extraction
+async function manualPDFExtraction(buffer: Buffer): Promise<string> {
+  try {
+    console.log('🔍 Scanning PDF buffer for text content...');
     
-    // Look for common text patterns in PDFs
-    const textMatches = bufferString.match(/[A-Za-z\u0590-\u05FF\u0400-\u04FF\s]{10,}/g);
+    // Try multiple encodings to handle Hebrew text properly
+    const encodings = ['utf8', 'binary', 'latin1'];
+    let bestResult = '';
     
-    if (textMatches && textMatches.length > 0) {
-      // Join the matches and clean up
-      const extractedText = textMatches
-        .join(' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-      
-      // Check if we got meaningful text (not just PDF metadata)
-      if (extractedText.length > 50 && !extractedText.includes('PDF') && !extractedText.includes('endobj')) {
-        return extractedText;
+    for (const encoding of encodings) {
+      try {
+        const bufferString = buffer.toString(encoding as BufferEncoding);
+        
+        // Multiple patterns to extract text from different PDF structures
+        const patterns = [
+          // Standard text blocks
+          /BT\s*(.*?)\s*ET/g,
+          // Text with positioning
+          /Tj\s*\((.*?)\)/g,
+          // Text arrays
+          /TJ\s*\[(.*?)\]/g,
+          // Direct text strings in parentheses
+          /\(([\u0000-\u007F\u0590-\u05FF\u0600-\u06FF\s]+)\)/g,
+          // Hebrew and English text patterns
+          /[\u0590-\u05FF\u0020-\u007E\s]{3,}/g
+        ];
+        
+        let extractedText = '';
+        
+        for (const pattern of patterns) {
+          const matches = bufferString.match(pattern);
+          if (matches && matches.length > 0) {
+            for (const match of matches) {
+              // Clean up the match
+              let cleanMatch = match
+                .replace(/BT|ET|Tj|TJ|\[|\]|\(|\)/g, '')
+                .replace(/\\[rnt]/g, ' ')
+                .replace(/[^\u0020-\u007E\u0590-\u05FF\u0600-\u06FF\s]/g, ' ')
+                .trim();
+              
+              if (cleanMatch.length > 2) {
+                extractedText += cleanMatch + ' ';
+              }
+            }
+          }
+        }
+        
+        if (extractedText.trim().length > bestResult.length) {
+          bestResult = extractedText.trim();
+        }
+      } catch (encodingError) {
+        console.log(`⚠️ Encoding ${encoding} failed, trying next...`);
       }
     }
     
-    // If no readable text found, return empty string
+    if (bestResult.length > 20) {
+      // Final cleanup
+      const finalText = bestResult
+        .replace(/\s+/g, ' ')
+        .replace(/([a-zA-Z])\s+([a-zA-Z])/g, '$1$2') // Fix broken words
+        .trim();
+      
+      console.log(`✅ Extracted ${finalText.length} characters from PDF`);
+      console.log('📄 Preview:', finalText.substring(0, 200));
+      
+      return finalText;
+    }
+    
+    console.log('⚠️ No meaningful text found in PDF');
     return '';
   } catch (error) {
-    console.error('Error in PDF text extraction:', error);
+    console.error('❌ Manual PDF extraction failed:', error);
     return '';
   }
 }

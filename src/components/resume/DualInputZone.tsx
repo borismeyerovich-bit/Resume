@@ -74,10 +74,10 @@ export default function DualInputZone({
             <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
               <h3 className="text-sm font-semibold text-green-800 mb-2">🎯 Why Upload is Better:</h3>
               <ul className="text-sm text-green-700 space-y-1">
-                <li>• <strong>Cleaner extraction:</strong> No copy-paste formatting issues</li>
-                <li>• <strong>Better dates:</strong> Preserves original date formats</li>
+                <li>• <strong>Fast & Reliable:</strong> Direct text extraction in seconds</li>
+                <li>• <strong>Better dates:</strong> Preserves original date formats without corruption</li>
                 <li>• <strong>Accurate emails:</strong> No character reversal from RTL text</li>
-                <li>• <strong>Professional:</strong> Supports PDF, DOC, DOCX, and images</li>
+                <li>• <strong>Multiple formats:</strong> PDF, DOC, DOCX, and images all supported</li>
               </ul>
             </div>
           </div>
@@ -133,11 +133,11 @@ export default function DualInputZone({
             </div>
             
             <div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
-              <h3 className="text-sm font-semibold text-amber-800 mb-2">⚠️ Copy-Paste Limitations:</h3>
+              <h3 className="text-sm font-semibold text-amber-800 mb-2">💡 For Best Results:</h3>
               <ul className="text-sm text-amber-700 space-y-1">
-                <li>• PDF copy-paste may corrupt dates and email addresses</li>
-                <li>• Hebrew text direction can cause formatting issues</li>
-                <li>• File upload provides much better results</li>
+                <li>• <strong>If PDF upload fails:</strong> Use this text option as backup</li>
+                <li>• <strong>Copy carefully:</strong> Select all text from your PDF viewer</li>
+                <li>• <strong>Check formatting:</strong> Ensure emails and dates look correct</li>
               </ul>
             </div>
           </div>
