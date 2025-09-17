@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        pre { background: white; padding: 10px; border: 1px solid #ddd; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>PDF Extraction Debug Test</h1>
+    
+    <form id="uploadForm">
+        <input type="file" id="fileInput" accept=".pdf" required>
+        <button type="submit">Test PDF Extraction</button>
+    </form>
+    
+    <div id="results"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            const results = document.getElementById('results');
+            
+            if (!file) {
+                results.innerHTML = '<div class="result error">Please select a PDF file</div>';
+                return;
+            }
+            
+            results.innerHTML = '<div class="result">Processing...</div>';
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/api/debug-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                let html = '<div class="result success"><h3>Debug Results:</h3>';
+                html += '<h4>File Info:</h4>';
+                html += `<pre>${JSON.stringify(data.file, null, 2)}</pre>`;
+                
+                html += '<h4>PDF-Parse Results:</h4>';
+                html += `<pre>${JSON.stringify(data.pdfParse, null, 2)}</pre>`;
+                
+                html += '<h4>Manual Extraction Results:</h4>';
+                html += `<pre>${JSON.stringify(data.manual, null, 2)}</pre>`;
+                
+                html += '</div>';
+                results.innerHTML = html;
+                
+            } catch (error) {
+                results.innerHTML = `<div class="result error">Error: ${error.message}</div>`;
+            }
+        });
+    </script>
+</body>
+</html> 
