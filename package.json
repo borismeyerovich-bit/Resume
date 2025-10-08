@@ -9,7 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "docx": "^9.5.1",
     "dotenv": "^17.2.1",
+    "file-saver": "^2.0.5",
     "framer-motion": "^11.0.0",
     "html2pdf.js": "^0.10.0",
     "mammoth": "^1.10.0",
@@ -25,6 +27,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/file-saver": "^2.0.7",
     "@types/node": "^20",
     "@types/pdf-parse": "^1.1.5",
     "@types/react": "^19",

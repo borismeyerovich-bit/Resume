@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { AmericanizedResume } from "../../entities/Resume";
 import SectionEditor from "./SectionEditor";
 import PDFExportButton from "./PDFExportButton";
+import WordExportButton from "./WordExportButton";
 import { getCompactFontSizing, FontSizingConfig } from "../../utils/fontSizing";
 
 interface ResumeEditorProps {
@@ -228,6 +229,7 @@ export default function ResumeEditor({
             >
               Experience First
             </button>
+            <WordExportButton resume={resume} />
             <PDFExportButton resume={resume} fontConfig={pdfFontConfig} />
           </div>
         </div>
