@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AmericanizedResume } from "../entities/Resume";
 import ResumeEditor from "../components/resume/ResumeEditor";
 import DualInputZone from "../components/resume/DualInputZone";
@@ -448,41 +448,6 @@ const MOCK_RESUME: AmericanizedResume = {
 export default function Home() {
   const [resume, setResume] = useState<AmericanizedResume | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showMockDropdown, setShowMockDropdown] = useState(false);
-
-  const mockResumes = [
-    {
-      name: "Minimal (1 Job)",
-      data: MINIMAL_MOCK_RESUME,
-      color: "text-purple-600",
-    },
-    {
-      name: "Simple (2 Jobs)",
-      data: SIMPLE_MOCK_RESUME,
-      color: "text-blue-600",
-    },
-    { name: "Dense (4 Jobs)", data: MOCK_RESUME, color: "text-green-600" },
-    {
-      name: "Extreme (6 Jobs)",
-      data: SUPER_DENSE_RESUME,
-      color: "text-red-600",
-    },
-  ];
-
-  const loadMockResume = (mockData: AmericanizedResume, name: string) => {
-    console.log(`🎯 Loading ${name} resume data`);
-    setResume(mockData);
-    setShowMockDropdown(false);
-  };
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = () => setShowMockDropdown(false);
-    if (showMockDropdown) {
-      document.addEventListener("click", handleClickOutside);
-      return () => document.removeEventListener("click", handleClickOutside);
-    }
-  }, [showMockDropdown]);
 
   const handleFileSelect = async (file: File) => {
     setIsProcessing(true);
@@ -603,20 +568,20 @@ export default function Home() {
       <div className="min-h-screen bg-gray-50 flex flex-col">
         {/* Sticky Header */}
         <div className="bg-white shadow-sm border-b sticky top-0 z-20">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+            <div className="flex justify-between items-start sm:items-center">
+              <div className="flex-1 min-w-0">
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">
                   ResumeTransformer
                 </h1>
-                <p className="text-gray-600">Edit your transformed resume</p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm sm:text-base text-gray-600">Edit your transformed resume</p>
+                <p className="text-xs sm:text-sm text-gray-500 truncate">
                   Processed: {resume.personal_info?.name || "Unknown"}
                 </p>
               </div>
               <button
                 onClick={resetApp}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50"
+                className="ml-3 px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50 text-sm sm:text-base whitespace-nowrap"
               >
                 Start Over
               </button>
@@ -634,48 +599,48 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-12">
         {/* Header Section with Logo and Tagline */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8 sm:mb-12">
           {/* Logo */}
-          <div className="flex justify-center items-center mb-6">
-            <div className="flex items-center space-x-3">
+          <div className="flex justify-center items-center mb-4 sm:mb-6">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               {/* Document Icon */}
-              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
               {/* Logo Text */}
               <div className="flex items-baseline space-x-1">
-                <span className="text-4xl font-bold text-blue-600">Resume</span>
-                <span className="text-4xl font-bold text-green-600">Transformer</span>
+                <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-blue-600">Resume</span>
+                <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-green-600">Transformer</span>
               </div>
             </div>
           </div>
 
           {/* Tagline */}
-          <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl text-gray-700 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed px-4">
             Transform any resume into a professional US-style format. Upload your file or paste content to get an optimized version instantly.
           </p>
 
           {/* Feature Highlights */}
-          <div className="flex justify-center items-center space-x-8 mb-8">
+          <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 sm:gap-x-8 mb-6 sm:mb-8 px-4">
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-              <span className="text-gray-600 font-medium">Any Language</span>
+              <span className="text-sm sm:text-base text-gray-600 font-medium">Any Language</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-              <span className="text-gray-600 font-medium">US Format</span>
+              <span className="text-sm sm:text-base text-gray-600 font-medium">US Format</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-              <span className="text-gray-600 font-medium">ATS Optimized</span>
+              <span className="text-sm sm:text-base text-gray-600 font-medium">ATS Optimized</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-              <span className="text-gray-600 font-medium">Instant Results</span>
+              <span className="text-sm sm:text-base text-gray-600 font-medium">Instant Results</span>
             </div>
           </div>
         </div>
@@ -686,33 +651,6 @@ export default function Home() {
           onTextSubmit={handleTextSubmit}
           isProcessing={isProcessing}
         />
-
-        {/* Mock Resume Section (Hidden by default, can be toggled) */}
-        <div className="mt-8 text-center">
-          <button
-            onClick={() => setShowMockDropdown(!showMockDropdown)}
-            className="text-gray-500 hover:text-gray-700 text-sm underline"
-          >
-            Load Sample Resume
-          </button>
-          
-          {showMockDropdown && (
-            <div className="mt-4 p-4 bg-white rounded-lg shadow-md border border-gray-200">
-              <h4 className="text-sm font-medium text-gray-700 mb-3">Choose a sample resume:</h4>
-              <div className="flex flex-wrap justify-center gap-2">
-                {mockResumes.map((mock, index) => (
-                  <button
-                    key={index}
-                    onClick={() => loadMockResume(mock.data, mock.name)}
-                    className={`px-3 py-2 text-xs rounded-md border transition-colors ${mock.color}`}
-                  >
-                    {mock.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

@@ -66,7 +66,7 @@ export default function FileUploadZone({ onFileSelect, isProcessing }: FileUploa
     <div className="w-full max-w-2xl mx-auto">
       <div
         className={`
-          border-2 border-dashed rounded-lg p-8 text-center transition-colors
+          border-2 border-dashed rounded-lg p-4 sm:p-6 lg:p-8 text-center transition-colors
           ${isDragOver 
             ? 'border-blue-500 bg-blue-50' 
             : 'border-gray-300 hover:border-gray-400'
@@ -78,17 +78,17 @@ export default function FileUploadZone({ onFileSelect, isProcessing }: FileUploa
         onDrop={handleDrop}
         onClick={() => !isProcessing && fileInputRef.current?.click()}
       >
-        <div className="space-y-4">
-          <div className="text-6xl text-gray-400">📄</div>
+        <div className="space-y-3 sm:space-y-4">
+          <div className="text-4xl sm:text-6xl text-gray-400">📄</div>
           
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
               Upload Your Resume
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 px-2">
               Drag and drop your resume here, or click to browse
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-xs sm:text-sm text-gray-500 px-2">
               Supports PDF, DOC, DOCX, and image files (max 10MB)
             </p>
           </div>
